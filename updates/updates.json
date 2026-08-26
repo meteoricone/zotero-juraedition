@@ -1,0 +1,19 @@
+{
+  "addons": {
+    "juraedition@ericmann.de": {
+      "updates": [
+        {
+          "version": "1.0",
+          "update_link": "https://##.xpi",
+          "update_hash": "sha256:beb9ba15fdcdce9634c8a19155c8f9b1b83a17667647ba60d314c13c6c460a54",
+          "applications": {
+            "zotero": {
+              "strict_min_version": "9.0",
+              "strict_max_version": "10.*"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
