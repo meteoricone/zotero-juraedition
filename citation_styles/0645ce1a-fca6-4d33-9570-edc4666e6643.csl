@@ -1,0 +1,931 @@
+<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" class="note" version="1.0" delimiter-precedes-et-al="never" delimiter-precedes-last="always" initialize="false" demote-non-dropping-particle="sort-only" default-locale="de-DE">
+<!-- allgemeine Einstellungen: Fußnoten, Sonderversion CSL-M, kein Delimiter vor "et al", aber vor letztem Autor, keine Initialen, Namenspartikel werden beim Sortieren ignoriert -->
+<!-- Version: echtes CSL-M würde version="1.1mlz1" nehmen, aber dann wird das Feld "Gericht" anders behandelt, daher hier nur CSL Version 1.0, auch wenn das eigentlich falsch ist -->
+<!-- default-locale="de-DE" heißt, dass als Sprache nur Deutsch gewählt werden kann -->
+<!-- das ist wichtig, weil die verwendeten Abkürzungen darauf angepasst sind -->
+
+<!-- zulässige Jurisdiction: https://github.com/Juris-M/legal-resource-registry/tree/master/src -->
+
+
+  <info>
+    <!-- title ist zwingend -->
+    <title>_Jura</title>
+    <!-- id ist zwingend; früher mal URL, aber UUID heute empfohlen -->
+    <id>0645ce1a-fca6-4d33-9570-edc4666e6643</id>
+    <!-- author ist optional -->
+    <author>
+      <name>Eric Mann</name>
+    </author>
+    <!-- updated ist zwingend; timestamp in speziellem Format -->
+    <updated>2026-09-19T12:00:00+00:00</updated>
+  </info>
+
+
+
+  <!-- locale-Element legt Übersetzungen bestimmter Terms (quasi feststehende Begriffe) fest -->
+  <locale xml:lang="de-DE">
+    <terms>
+      <!-- alphabetische Sortierung bietet sich an :D -->
+      <term name="accessed">besucht am</term>
+      <term name="issue" form="short">Rn.</term>    <!-- entspricht "Nr." = bei uns also "Rn." -->
+      <term name="note" form="short">Fn.</term>        <!-- ## -->
+      <term name="note" form="long">Fn.</term>        <!-- ## -->
+      <term name="page" form="short"></term>        <!-- "S." fehlt grds. ganz... -->
+      <term name="page" form="long">S.</term>       <!-- ##todo: geht das so auf in allen Konstellationen?? -->
+      <term name="page-range-delimiter">–</term>    <!-- Seiten werden durch einen En-Dash getrennt -->
+    </terms>
+  </locale>
+
+
+
+  <!-- Makros sind direkte child-elements vom style-Element, d.h. sie kommen hier einfach nacheinander -->
+  <!-- aber: alphabetische Sortierung ergibt durchaus Sinn :D -->
+
+  <!-- Nachnamen der Autoren, sonst Herausgeber -->
+  <macro name="Autoren_Fußnoten">
+    <names variable="author">
+      <name form="short" font-style="italic" delimiter="/" et-al-min="4" et-al-use-first="1" initialize="false"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
+  </macro>
+
+  <!-- Locator: Autom. Abkürzung + Zahl, sofern Locator angegeben ist -->
+  <macro name="Locator_mit_Label">
+    <choose>
+      <if variable="locator">
+        <!-- das label-Element rendert einen Term abhängig vom Plural, hier den Term für den "Locator-Typ" (Seite, Absatz, etc) -->
+        <label variable="locator" form="short" suffix=" "/>
+        <text variable="locator"/>
+      </if>
+    </choose>
+  </macro>
+
+
+  <!-- bei den folgenden Makros habe ich noch nicht gecheckt, ob sie wirklich benutzt werden -->
+
+  <macro name="author">
+    <names variable="author" font-style="italic">
+      <name font-style="normal" delimiter=" / " name-as-sort-order="all"/>
+    </names>
+  </macro>
+
+  <macro name="author-note">
+    <names variable="author" font-style="normal">
+      <name form="short" font-style="italic" delimiter="/" delimiter-precedes-et-al="never" delimiter-precedes-last="always" et-al-min="4" et-al-use-first="1" initialize="false" name-as-sort-order="all"/>
+    </names>
+  </macro>
+
+
+
+  <macro name="autor-editor-note">
+    <names variable="author" font-style="italic">
+      <name form="short" delimiter="/" et-al-min="3" et-al-use-first="1" sort-separator=""/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
+  </macro>
+
+  <macro name="inbook">
+    <group delimiter=": ">
+      <text term="in"/>
+      <group delimiter=", ">
+        <names variable="editor">
+          <name form="short" delimiter="/" initialize-with=""/>
+        </names>
+        <text variable="container-title" form="short"/>
+      </group>
+    </group>
+  </macro>
+
+  <macro name="firstpage-locator">
+    <group delimiter=" ">
+      <text variable="page-first"/>
+      <text variable="number" prefix=" - "/>
+    </group>
+    <text variable="locator" prefix=", "/>
+  </macro>
+
+  <macro name="autoren-vollstaendig">
+    <names variable="author" font-style="italic">
+      <name delimiter=" / " delimiter-precedes-et-al="never" delimiter-precedes-last="always" name-as-sort-order="all"/>
+    </names>
+  </macro>
+
+  <macro name="auflage">
+    <choose>
+      <if match="any" is-numeric="edition">
+        <text variable="edition" suffix=". Aufl."/>
+      </if>
+      <else>
+        <text variable="edition" suffix=" Aufl."/>
+      </else>
+    </choose>
+  </macro>
+
+  <macro name="url-and-date">
+    <text variable="URL"/>
+    <date form="numeric" variable="accessed" prefix=" (zuletzt abgerufen am " suffix=")"/>
+    <text variable="locator" prefix=", "/>
+  </macro>
+
+  <macro name="kurztitel-sonst-hrsg-sonst-begr">
+    <choose>
+      <if match="any" variable="title-short">
+        <text variable="title-short" form="short"/>
+      </if>
+      <else-if match="any" variable="editor">
+        <names variable="editor" delimiter="/">
+          <name form="short" delimiter="/" delimiter-precedes-et-al="never" delimiter-precedes-last="always" initialize="false"/>
+        </names>
+      </else-if>
+      <else-if match="any" variable="translator">
+        <names variable="translator">
+          <name form="short" delimiter="/"/>
+        </names>
+      </else-if>
+    </choose>
+  </macro>
+
+  <macro name="URL-kurz">
+    <choose>
+      <if match="any" variable="archive">
+        <text variable="archive" prefix=", verfügbar unter "/>
+      </if>
+      <else>
+        <text variable="URL" prefix=", verfügbar unter "/>
+      </else>
+    </choose>
+    <date form="numeric" variable="accessed" prefix=" (Abruf: " suffix=")"/>
+  </macro>
+
+  <macro name="Autoren_Literaturverzeichnis">
+    <choose>
+      <if match="any" variable="author">
+        <names variable="author">
+          <name font-style="italic" delimiter="/" initialize="false" name-as-sort-order="all"/>
+        </names>
+      </if>
+      <else-if match="any" variable="editor">
+        <names variable="editor" suffix=" (Hrsg.)">
+          <name font-style="italic" delimiter="/" initialize="false" name-as-sort-order="all"/>
+        </names>
+      </else-if>
+      <else>
+        <text variable="publisher"/>
+        <text variable="collection-title" prefix=" (" suffix=")"/>
+      </else>
+    </choose>
+  </macro>
+
+  <macro name="Literaturverzeichnis_Reihenfolge">
+    <choose>
+      <if type="musical_score" match="any">
+        <names variable="author"/>
+      </if>
+      <else-if type="entry-encyclopedia" match="all" variable="keyword">
+        <text variable="original-title"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" match="all" variable="original-author">
+        <names variable="original-author"/>
+      </else-if>
+      <else-if type="entry-encyclopedia" match="all">
+        <names variable="editor"/>
+      </else-if>
+      <else>
+        <names variable="author editor"/>
+        <text variable="publisher"/>
+      </else>
+    </choose>
+  </macro>
+
+  <macro name="Herausgeber_Literaturverzeichnis_normal">
+    <names variable="editor">
+      <name delimiter="/" initialize="false" name-as-sort-order="all"/>
+    </names>
+  </macro>
+
+  <macro name="Zeitschrift">
+    <text variable="container-title" form="short" suffix=" "/>
+    <choose>
+      <if match="any" type="musical_score">
+        <text value="nur Platzhalter"/>
+      </if>
+      <else-if match="any" variable="available-date">
+        <text value="(im Erscheinen)"/>
+      </else-if>
+      <else-if match="any" variable="volume">
+        <text variable="volume"/>
+        <date date-parts="year" form="text" variable="issued" prefix=" (" suffix=")"/>
+      </else-if>
+      <else-if match="any" variable="issue">
+        <text variable="issue" suffix="/"/>
+        <date date-parts="year" form="text" variable="issued"/>
+      </else-if>
+      <else>
+        <date date-parts="year" form="text" variable="issued"/>
+      </else>
+    </choose>
+  </macro>
+
+
+
+  <macro name="Zitiert_als">
+    <text value="; zitiert als: "/>
+    <text variable="title-short" suffix="/"/>
+    <text value="Bearbeiter" font-style="italic"/>
+  </macro>
+
+
+  <macro name="URL_Literaturverzeichnis">
+    <text variable="URL" prefix="verfügbar unter "/>
+  </macro>
+
+  <macro name="Band_und_Bandtitel">
+    <text variable="volume" prefix="Band "/>
+    <text variable="volume-title" prefix=": "/>
+  </macro>
+
+
+
+
+
+  <!-- das citation-Element legt die Zitierweise in den Fußnoten fest -->
+  <citation>
+    <!-- in "Vanilla-CSL" hat das citation-Element (nur) ein child: das layout-Element -->
+    <!-- hier wird ein Semikolon als Delimiter (Trenner) zwischen Quellen festgelegt sowie dass eine Fußnote auf einen Punkt endet -->
+    <layout delimiter="; " suffix=".">
+
+      <!-- das weitere Layout hängt unmittelbar vom Quellen-Typ ab, daher choose und if bzw. else-if -->
+      <choose>
+
+        <!-- Quellentyp: BERICHT -->
+        <if type="report" match="any">
+          <text macro="Autoren_Fußnoten"/>
+          <text variable="title" form="short" prefix=", "/>
+          <date date-parts="year" form="numeric" variable="issued" prefix=", "/>
+          <text macro="Locator_mit_Label" prefix=", "/>
+        </if>
+
+        <!-- Quellentyp: BLOGEINTRAG -->
+        <else-if type="post-weblog" match="any">
+          <text macro="Autoren_Fußnoten" suffix=", "/>
+          <text variable="container-title" suffix=", "/>
+          <date form="numeric" variable="issued" prefix="Beitrag v. "/>
+        </else-if>
+
+        <!-- Quellentyp: DISKUSSIONSRUNDE > s.u. "Streitgespräch" -->
+
+        <!-- Quellentyp: DISSERTATION -->
+        <!-- ## todo: ergibt das alles so Sinn? -->
+        <else-if type="thesis" match="any">
+          <text macro="author-note"/>
+          <text variable="title" form="short" prefix=", "/>
+          <text macro="Locator_mit_Label" prefix=", "/>
+        </else-if>
+
+        <!-- Quellentyp: FESTSCHRIFT > s.u. "Sammelbandbeitrag" -->
+
+        <!-- Quellentyp: GERICHTSENTSCHEIDUNG -->
+        <else-if type="legal_case" match="any">
+          <choose>
+
+            <!-- Vorbemerkung zum Aufbau:
+
+
+            ## CSL-M benötigt !!
+
+            1. "if"-Element als Platzhalter, damit alle anderen Elemente "else-if"-Elemente sein können
+            2.
+
+          -->
+
+            <if type="legal_case" match="none">
+              <!-- nur Platzhalter, die Bedingung wird niemals wahr sein -->
+            </if>
+
+            <!-- ## EGMR -->
+            <else-if match="any" country="coe.int">
+              <text variable="authority"/>
+              <text variable="genre" prefix=", "/>
+              <date form="numeric" variable="issued" prefix=" v. "/>
+              <text value=" ‒ "/>
+              <text value="Nr. "/>
+              <text variable="number"/>
+              <text value=", "/>
+              <names variable="composer">
+                <name form="short"/>
+              </names>
+              <text value="/"/>
+              <names variable="recipient">
+                <name form="short"/>
+              </names>
+              <text variable="container-title" prefix=", "/>
+              <text variable="volume" prefix=" "/>
+              <text variable="page-first" prefix=", "/>
+              <text variable="keyword" prefix=", "/>
+              <!-- ## todo: Locator-Label autom. einfügen möglich und sinnvoll?? ## -->
+              <text variable="locator" prefix=", "/>
+              <text variable="title-short" prefix=" (" suffix=")"/>
+            </else-if>
+
+            <!-- ## EuGH ## -->
+            <else-if match="any" country="eu.int">
+              <choose>
+                <if match="none" variable="author">
+                  <text variable="authority"/>
+                  <text variable="genre" prefix=", "/>
+                  <date form="numeric" variable="issued" prefix=" v. "/>
+                  <text value=" ‒ "/>
+
+                      <text value="Rs. "/>
+
+                  <text variable="number"/>
+                  <text variable="event-title" prefix=", "/>
+                  <text variable="container-title" prefix=", "/>
+                  <text variable="volume" prefix=" "/>
+                  <text variable="page-first" prefix=", "/>
+                  <text variable="keyword" prefix=", "/>
+                  <text variable="locator" prefix=", "/>
+                  <text variable="title-short" prefix=" (" suffix=")"/>
+                </if>
+
+                <!-- ## Exkurs: Schlussantrag GA am EuGH -->
+                <else>
+                  <text value="Schlussanträge GA "/>
+                  <names variable="author">
+                    <name form="short" delimiter=""/>
+                  </names>
+                  <text value=" – Rs. "/>
+                  <text variable="number"/>
+                  <text variable="keyword" prefix=", "/>
+                  <text variable="locator" prefix=", "/>
+                  <text variable="title-short" prefix=" (" suffix=")"/>
+                </else>
+              </choose>
+            </else-if>
+
+
+            <!-- ## DE ## -->
+            <else-if match="none" variable="contributor">
+              <text variable="authority"/>
+              <text variable="genre" prefix=", "/>
+              <date form="numeric" variable="issued" prefix=" v. "/>
+              <text variable="number" prefix=" ‒ "/>
+
+              <!-- ## Sondereinschub für AP-Zitat für Krause
+              <text value=" ‒ "/>
+              <text variable="archive"/>
+              <choose>
+                <if match="all" variable="archive container-title">
+                  <text value=" = "/>
+                </if>
+              </choose>
+               -->
+
+              <choose>
+                <if match="all" variable="number container-title">
+                  <text value=" ‒ "/>
+                </if>
+              </choose>
+              <text variable="container-title"/>
+              <text variable="volume" prefix=" "/>
+              <text variable="page-first" prefix=", "/>
+              <text variable="keyword" prefix=", "/>
+              <!-- ##Krause: (Locator) statt, Locator -->
+              <group delimiter="">
+                <text value=" ("/>
+                <label variable="locator" form="short" suffix=" "/>
+                <text variable="locator"/>
+                <text value=")" />
+              </group>
+              <text variable="title-short" prefix=" (" suffix=")"/>
+            </else-if>
+
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: GESETZESMATERIALIEN -->
+        <else-if type="bill" match="any">
+          <text variable="title-short" suffix=", "/>
+          <text variable="number"/>
+          <label variable="locator" form="short" prefix=", " suffix=" "/>
+          <text variable="locator"/>
+          <choose>
+            <if type="bill" match="none">
+              <choose>
+                <if match="any" variable="container-title">
+                  <text variable="container-title"/>
+                </if>
+                <else>
+                  <text value="BT-Drs."/>
+                </else>
+              </choose>
+              <text variable="number" prefix=" "/>
+              <choose>
+                <if match="any" variable="locator">
+                  <text value=", "/>
+                  <label suffix=" " variable="locator" form="short"/>
+                  <text variable="locator"/>
+                </if>
+              </choose>
+            </if>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: KOMMENTAR -->
+        <else-if type="entry-encyclopedia" match="any">
+          <text macro="kurztitel-sonst-hrsg-sonst-begr" suffix="/"/>
+          <text macro="author-note" font-style="italic"/>
+          <text value=", "/>
+          <text variable="page"/>
+          <label variable="locator" form="short" prefix=" "/>
+          <text variable="locator" prefix=" "/>   <!-- prefix ist ein geschützes Leerzeichen! -->
+        </else-if>
+
+        <!-- Quellentyp: Monographie -->
+        <else-if type="book">
+          <group delimiter="">
+            <text macro="author-note" suffix=", "/>
+            <text variable="title" form="short" suffix=", "/>
+            <date date-parts="year" form="numeric" variable="issued"/>
+            <choose>
+              <if match="any" variable="locator">
+                <label variable="locator" form="long" prefix=", " suffix=" "/>    <!-- suffix ist non-breaking space! -->
+                <text variable="locator"/>
+              </if>
+            </choose>
+          </group>
+        </else-if>
+
+        <!-- Quellentyp: NORM -->
+        <else-if type="legislation" match="any">
+          <choose>
+            <if match="none" variable="language">
+              <text variable="title"/>
+              <date form="numeric" variable="submitted" prefix=", vom "/>
+              <text variable="container-title" prefix=", "/>
+              <text variable="page-first" prefix=", "/>
+              <text variable="title-short" prefix=" (" suffix=")"/>
+              <text variable="locator" prefix=", "/>
+            </if>
+            <else>
+              <text variable="number"/>
+              <text variable="container-title" prefix=", "/>
+              <text variable="supplement-number" prefix=", zuletzt geändert durch "/>
+              <text variable="title-short" prefix=" (" suffix=")"/>
+              <text variable="locator" prefix=", "/>
+            </else>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: PREPRINT (Zotero: Preprint) ?? -->
+        <else-if type="article" match="any">
+          <text macro="Autoren_Fußnoten"/>
+          <text variable="title-short" prefix=", "/>
+          <text variable="genre" prefix=" (" suffix=")"/>
+          <text variable="locator" prefix=", "/>
+        </else-if>
+
+        <!-- Quellentyp: REDE (Zotero: Vortrag/Presentation) ?? -->
+        <else-if type="speech" match="any">
+          <text macro="Autoren_Fußnoten" suffix=", "/>
+          <text variable="genre"/>
+          <date form="numeric" variable="issued" prefix=" v. "/>
+          <text variable="locator" prefix=", "/>
+        </else-if>
+
+        <!-- Quellentyp: SAMMELWERK -->
+        <else-if type="chapter">
+
+          <!-- deaktivierte Version! -->
+          <choose>
+            <if type="chapter" match="none">
+              <group delimiter=", ">
+                <text macro="author-note"/>
+                <group delimiter=" ">
+                  <text value="in:"/>
+                  <names variable="editor">
+                    <name form="short" delimiter="/" name-as-sort-order="all"/>
+                  </names>
+                </group>
+                <text variable="title" form="short"/>
+                <choose>
+                  <if match="any" variable="page-first">
+                    <group delimiter=" ">
+                      <text value="S."/>
+                      <text variable="page-first"/>
+                      <text variable="locator" prefix="(" suffix=")"/>
+                    </group>
+                  </if>
+                  <else>
+                    <text variable="locator"/>
+                  </else>
+                </choose>
+              </group>
+            </if>
+          </choose>
+
+          <!-- aktuell -->
+          <text macro="author-note" suffix=" in "/>
+          <choose>
+            <if match="any" variable="title-short">
+              <text variable="title-short"/>
+            </if>
+            <else>
+              <text value="##"/>
+            </else>
+          </choose>
+          <text variable="page-first" prefix=", "/>
+          <text variable="locator" prefix=", "/>
+
+        </else-if>
+
+        <!-- Quellentyp: STREITGESPRÄCH (Zotero: Vortrag/Presentation aber mit Extra: Type: Event) ?? -->
+        <else-if type="event" match="any">
+          <text variable="locator" font-style="italic" suffix=" in "/>
+          <choose>
+            <if match="any" variable="locator">
+              <names variable="author" suffix=", ">
+                <name form="short" delimiter="/" et-al-min="4" et-al-use-first="1" initialize="false"/>
+              </names>
+            </if>
+            <else>
+              <text macro="Autoren_Fußnoten" suffix=", "/>
+            </else>
+          </choose>
+          <text variable="genre" form="short"/>
+          <date form="numeric" variable="issued" prefix=" v. "/>
+          <text variable="event-place" prefix=" in "/>
+          <text variable="title-short" prefix=": "/>
+        </else-if>
+
+        <!-- Quellentyp: VÖLKERRECHTLICHE VERTRÄGE -->
+        <else-if type="treaty" match="any">
+          <text variable="title"/>
+          <date form="numeric" variable="submitted" prefix=" (v. "/>
+          <date form="numeric" variable="issued" prefix=", in Kraft " suffix=")"/>
+          <text variable="container-title" prefix=" "/>
+        </else-if>
+
+        <!-- Quellentyp: WEBSITE -->
+        <else-if type="webpage" match="any">
+          <text variable="URL"/>
+          <choose>
+            <if type="webpage" match="none">
+              <date form="numeric" variable="accessed" prefix=" (Abruf: " suffix=")"/>
+            </if>
+          </choose>
+          <text variable="locator"/>
+        </else-if>
+
+        <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ -->
+        <!-- ##todo: die Bibliographie ist nocht nicht angepasst!!! -->
+        <!-- ##todo: die Mglk, locator zu nehmen (wie Fn.) besteht nur bei Zitation nach Band -->
+        <else-if type="article-journal" match="any">
+          <choose>
+
+            <!-- autom. Zitierweise, wenn keine Jurisdiction festgelegt -->
+            <if match="none" variable="jurisdiction">
+              <text macro="Autoren_Fußnoten" suffix=", "/>
+              <text macro="Zeitschrift"/>
+              <text variable="page-first" prefix=", "/>
+              <text variable="locator" prefix=", "/>
+            </if>
+
+            <!-- Standard-Zitierweise (Abkz Jahr, Seite) -->
+            <else-if country="de" match="any">
+              <text macro="Autoren_Fußnoten" suffix=", "/>
+              <text variable="container-title" form="short" suffix=" "/>
+              <date date-parts="year" form="text" variable="issued"/>
+              <text variable="page-first" prefix=", "/>
+              <text variable="locator" prefix=", "/> 
+            </else-if>
+
+            <!-- Sonderfall 1 (Abkz Band (Jahr), Seite) -->
+            <else-if country="ch" match="any">
+              <text macro="Autoren_Fußnoten" suffix=", "/>
+              <text variable="container-title" form="short" suffix=" "/>
+
+              <text variable="volume"/>
+              <choose>
+                <if variable="volume" match="none">
+                  <text value="##"/>
+                </if>
+              </choose>
+
+              <date date-parts="year" form="text" variable="issued" prefix=" (" suffix=")"/>
+              <text variable="page-first" prefix=", "/>
+              <choose>
+                <if match="all" variable="locator">
+                  <text value=", "/>
+                  <label variable="locator" form="short" suffix=" "/>    <!-- suffix ist non-breaking space! -->
+                  <text variable="locator"/> 
+                </if>
+              </choose>
+            </else-if>
+
+            <!-- Sonderfall 2 (Abkz Ausg/Jahr, Seite) -->
+            <else-if country="at" match="any">
+              <text macro="Autoren_Fußnoten" suffix=", "/>
+              <text variable="container-title" form="short" suffix=" "/>
+              <text variable="issue" suffix="/"/>
+              <date date-parts="year" form="text" variable="issued"/>
+              <text variable="page-first" prefix=", "/>
+              <text variable="locator" prefix=", "/> 
+            </else-if>
+
+            <!-- ##todo: ausländische Zeitschriften -->
+            <else>
+              <text macro="Autoren_Fußnoten" suffix=", "/>
+              <text variable="volume"/>
+              <text variable="container-title" form="short" prefix=" "/>
+              <text variable="page-first" prefix=" "/>
+              <text variable="locator" prefix=", "/>
+              <date date-parts="year" form="numeric" variable="issued" prefix=" (" suffix=")"/>
+            </else>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: ZEITUNGSARTIKEL -->
+        <else-if type="article-newspaper" match="any">
+          <choose>
+            <if type="article-newspaper" match="none">
+              <group>
+                <text macro="author-note" suffix=", "/>
+                <text variable="title" form="short"/>
+                <text variable="container-title" prefix=", "/>
+                <date form="numeric" variable="issued" prefix=", "/>
+              </group>
+            </if>
+          </choose>
+          <text macro="Autoren_Fußnoten"/>
+          <text variable="container-title" prefix=", "/>
+          <date form="numeric" variable="issued" prefix=" v. "/>
+          <text variable="locator" prefix=", "/>
+        </else-if>
+
+        <!-- Sonstige Quellen / Backup -->
+        <else>
+          <group delimiter=", ">
+            <text macro="author-note"/>
+            <text variable="title" form="short"/>
+            <text variable="locator"/>
+          </group>
+        </else>
+
+      </choose>
+
+    </layout>
+
+  </citation>
+
+
+
+
+  <!-- bibliography-Element legt die Zitierweise im Literaturverzeichnis fest -->
+  <!-- consolidate-containers ist eine CSL-M Funktion -->
+  <bibliography entry-spacing="2" consolidate-containers="entry-encyclopedia">
+
+    <!-- Das sort-Element legt die Sortierung fest, hier in erster Linie Verweis auf dafür erstelltes Makro. -->
+    <sort>
+      <key macro="Literaturverzeichnis_Reihenfolge"/>
+      <key variable="volume"/>
+      <key variable="issued"/>
+    </sort>
+
+    <!-- Das layout-Element legt die Zitierweise der konkreten Quelle fest. -->
+    <layout suffix=".">
+      <choose>
+
+        <!-- PLATZHALTER -->
+        <if type="musical_score">
+          <text value="Platzhalter"/>
+        </if>
+
+        <!-- Quellentyp: BERICHT-->
+        <else-if type="report" match="any">
+          <text macro="Autoren_Literaturverzeichnis"/>
+          <choose>
+            <if match="any" variable="publisher">
+              <text variable="publisher" prefix=", "/>
+              <text variable="collection-title" prefix=" (" suffix=")"/>
+              <text value=" (Hrsg.)"/>
+            </if>
+          </choose>
+          <text variable="title" prefix=", "/>
+          <date date-parts="year" form="numeric" variable="issued" prefix=", "/>
+          <text macro="URL_Literaturverzeichnis" prefix=", "/>
+        </else-if>
+
+        <!-- Quellentyp: BLOGEINTRAG -->
+        <else-if type="post-weblog" match="any">
+          <text macro="Autoren_Literaturverzeichnis" suffix=", "/>
+          <text variable="title" suffix=", "/>
+          <text variable="container-title" suffix=", "/>
+          <date form="numeric" variable="issued" prefix="Beitrag vom " suffix=", "/>
+          <text macro="URL_Literaturverzeichnis"/>
+        </else-if>
+
+        <!-- Quellentyp: DISKUSSIONSRUNDE > s.u. "Streitgespräch" -->
+
+        <!-- Quellentyp: DISSERTATION -->
+        <else-if type="thesis" match="any">
+          <text macro="Autoren_Literaturverzeichnis"/>
+          <text variable="title" prefix=", "/>
+          <text variable="volume"/>
+          <text macro="auflage"/>
+          <text variable="genre" prefix=" (" suffix=")"/>
+          <text macro="URL_Literaturverzeichnis" prefix=", zitiert nach der Version "/>
+        </else-if>
+
+        <!-- Quellentyp: FESTSCHRIFT > s.u. "Sammelwerkbeitrag" -->
+
+        <!-- Quellentyp: KOMMENTAR -->
+        <else-if type="entry-encyclopedia">
+          <choose>
+
+            <!-- Kommentar zitiert nach Sachname -->
+            <if match="any" variable="keyword">
+              <text variable="original-title"/>
+              <text macro="Herausgeber_Literaturverzeichnis_normal" prefix=", herausgegeben von " suffix=", "/>
+            </if>
+
+            <!-- Kommentar zitiert nach Begründer -->
+            <else-if match="all" variable="original-author">
+              <names variable="original-author" suffix=" (Begr.)">
+                <name font-style="italic" delimiter="/" initialize="false" name-as-sort-order="all"/>
+              </names>
+              <text macro="Herausgeber_Literaturverzeichnis_normal" prefix=", herausgegeben von "/>
+              <text variable="original-title" prefix=", " suffix=", "/>
+            </else-if>
+
+            <!-- Kommentar zitiert nach Herausgeber -->
+            <else>
+              <names variable="editor" font-style="italic" suffix=", ">
+                <name delimiter=" / " delimiter-precedes-et-al="never" delimiter-precedes-last="always" name-as-sort-order="all"/>
+              </names>
+              <text variable="original-title" suffix=", "/>
+              <choose>
+                <if match="none" variable="original-title">
+                  <text value="## Kommentartitel fehlt - s. unter "/>
+                  <text variable="title"/>
+                  <text value=" ## "/>
+                </if>
+              </choose>
+            </else>
+          </choose>
+
+          <text macro="Band_und_Bandtitel" suffix=", "/>
+          <text variable="edition" suffix=". Aufl., "/>
+          <text variable="publisher-place" suffix=" "/>
+          <date date-parts="year" form="text" variable="issued"/>
+          <date form="text" variable="submitted" prefix=" (Online-Kommentar, Stand: " suffix=")"/>
+          <text variable="supplement-number" prefix=" (Loseblatt, Stand: " suffix=")"/>
+          <choose>
+            <if match="any" variable="original-title">
+              <text macro="Zitiert_als"/>
+            </if>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: MONOGRAPHIE -->
+        <else-if type="book">
+          <choose>
+            <if type="book" match="none">
+              <group prefix="[" suffix="]">
+                <text value="Zitiert: "/>
+                <text macro="author-note" suffix=", "/>
+                <text variable="title" form="short"/>
+              </group>
+            </if>
+          </choose>
+          <text macro="Autoren_Literaturverzeichnis" suffix=", "/>
+          <text variable="title" suffix=", "/>
+          <text macro="Band_und_Bandtitel" suffix=", "/>
+          <text macro="auflage" suffix=", "/>
+          <text variable="publisher-place" suffix=" "/>
+          <date date-parts="year" form="text" variable="issued"/>
+        </else-if>
+
+        <!-- Quellentyp: PREPRINT-->
+        <else-if type="article" match="any">
+          <text macro="Autoren_Literaturverzeichnis"/>
+          <text variable="title" prefix=", "/>
+          <text variable="collection-title" prefix=", "/>
+          <text variable="collection-number" prefix=" "/>
+          <choose>
+            <if match="any" variable="status">
+              <text variable="status" prefix=", "/>
+              <text macro="URL_Literaturverzeichnis" prefix=", vorab "/>
+            </if>
+            <else>
+              <date date-parts="year" form="text" variable="issued" prefix=", "/>
+              <text macro="URL_Literaturverzeichnis" prefix=", "/>
+            </else>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: REDE -->
+        <else-if type="speech" match="any">
+          <text macro="Autoren_Literaturverzeichnis"/>
+          <text variable="genre" prefix=", "/>
+          <date form="numeric" variable="issued" prefix=" v. "/>
+          <text variable="title" prefix=", "/>
+          <text macro="URL_Literaturverzeichnis" prefix=", "/>
+        </else-if>
+
+        <!-- Quellentyp: SAMMELWERKBEITRAG-->
+        <else-if type="chapter">
+          <choose>
+            <if type="chapter" match="none">
+              <group delimiter=", ">
+                <text macro="author"/>
+                <text variable="title"/>
+                <group delimiter=":  ">
+                  <text term="in"/>
+                  <group delimiter=", ">
+                    <names variable="editor" font-style="italic">
+                      <name delimiter="/" name-as-sort-order="all" sort-separator=", " form="long"/>
+                      <label form="short" prefix=" (" suffix=")"/>
+                    </names>
+                    <text variable="container-title"/>
+                  </group>
+                </group>
+                <text variable="edition"/>
+                <group delimiter=" ">
+                  <text variable="publisher-place"/>
+                  <date date-parts="year" form="text" variable="issued"/>
+                </group>
+                <text variable="page"/>
+              </group>
+            </if>
+          </choose>
+          <text macro="Autoren_Literaturverzeichnis" font-style="normal" suffix=", "/>
+          <text variable="title" suffix=", in: "/>
+          <text macro="Herausgeber_Literaturverzeichnis_normal" suffix=" (Hrsg.), "/>
+          <names variable="container-author" suffix=" (Autoren), ">
+            <name delimiter="/" name-as-sort-order="all"/>
+          </names>
+          <names variable="contributor" prefix="mit Beiträgen von " suffix=", ">
+            <name delimiter="/" name-as-sort-order="all"/>
+          </names>
+          <text variable="container-title" suffix=", "/>
+          <text variable="volume" prefix="Band " suffix=", "/>
+          <text variable="publisher-place" suffix=" "/>
+          <date date-parts="year" form="numeric" variable="issued" suffix=", "/>
+          <text variable="page"/>
+          <choose>
+            <if match="any" variable="medium">
+              <text macro="URL_Literaturverzeichnis" prefix="; "/>
+            </if>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ-->
+        <else-if type="article-journal" match="any">
+          <choose>
+            <if match="none" variable="language">
+              <text macro="Autoren_Literaturverzeichnis" suffix=", "/>
+              <text variable="title" suffix=", "/>
+              <text macro="Zeitschrift"/>
+              <text variable="page" prefix=", "/>
+            </if>
+            <else>
+              <text macro="Autoren_Literaturverzeichnis" suffix=", "/>
+              <text variable="title" suffix=", "/>
+              <text variable="volume" suffix=" "/>
+              <text variable="container-title" form="short" suffix=" "/>
+              <text variable="page"/>
+              <date date-parts="year" form="numeric" variable="issued" prefix=" (" suffix=")"/>
+            </else>
+          </choose>
+          <choose>
+            <if match="any" variable="available-date">
+              <text macro="URL_Literaturverzeichnis" prefix=", vorab "/>
+            </if>
+          </choose>
+        </else-if>
+
+        <!-- Quellentyp: ZEITUNGSARTIKEL-->
+        <else-if type="article-newspaper" match="any">
+          <text macro="Autoren_Literaturverzeichnis"/>
+          <text variable="title" prefix=", "/>
+          <text variable="container-title" prefix=", "/>
+          <date form="numeric" variable="issued" prefix=" vom "/>
+          <text macro="URL_Literaturverzeichnis" prefix=", "/>
+        </else-if>
+
+        <!-- Sonstiges undefiniertes Dokument -->
+        <else-if type="document" match="any">
+          <text value="#TODO: Dokument im LitV bzw. Zotero-Typ überprüfen"/>
+        </else-if>
+
+      </choose>
+    </layout>
+  </bibliography>
+
+</style>
