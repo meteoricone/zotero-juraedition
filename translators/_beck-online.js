@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-24 22:01:14"
+	"lastUpdated": "2026-09-29 21:21:00"
 }
 
 /*
@@ -563,7 +563,9 @@ async function scrapeCommentaryISBN(doc, url) {
 
 
 
+	/*
 
+	// ##todo: das ist noch nicht ausgereift
 
 	// Müko - Redakteuer loswerden (in Hrsg. der Reihe umwandeln) -- ##todo: die Rolle gibt es eigentlich aber auch, wie abstimmen??
 	if (personsMueko) {
@@ -592,6 +594,7 @@ async function scrapeCommentaryISBN(doc, url) {
 
 	};
 
+	*/
 
 
 	/*
