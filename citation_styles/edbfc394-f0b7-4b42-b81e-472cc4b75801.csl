@@ -53,31 +53,21 @@
   <!-- Makros sind direkte child-elements vom style-Element, d.h. sie kommen hier einfach nacheinander -->
   <!-- aber: alphabetische Sortierung ergibt durchaus Sinn :D -->
   <!-- ##todo: alphabetisch sortieren lol -->
-  <macro name="Kurznamen_Herausgeber">
-    <names variable="editor" font-variant="small-caps">
-      <name form="short" delimiter-precedes-et-al="never" et-al-min="1" et-al-use-first="1"/>
-      <et-al term="and others"/>
-      <substitute>
-        <names variable="author"/>
-      </substitute>
-    </names>
-  </macro>
-  <macro name="Kurznamen_Autoren">
-    <names variable="author" font-variant="small-caps">
-      <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="1" et-al-use-first="1"/>
-      <et-al term="and others"/>
-    </names>
-  </macro>
+
+
+
+
   <macro name="End_Line_1">
     <choose>
       <if match="any" variable="URL">
-        <text value="Available at: " display="left-margin"/>
+        <text value="Available at: "/>
       </if>
       <else>
         <text value="Available only in print. ## Korrekt? ##"/>
       </else>
     </choose>
   </macro>
+
   <macro name="End_Line_2">
     <choose>
       <if match="any" variable="URL">
@@ -85,9 +75,18 @@
       </if>
     </choose>
   </macro>
+
   <macro name="End_Line_3">
     <text value="Cited in"/>
   </macro>
+
+  <macro name="Kurznamen_Autoren">
+    <names variable="author" font-variant="small-caps">
+      <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="1" et-al-use-first="1"/>
+      <et-al term="and others"/>
+    </names>
+  </macro>
+
   <macro name="Langnamen_Autoren">
     <names variable="author" suffix=",">
       <name/>
@@ -100,24 +99,40 @@
     </names>
   </macro>
 
-
   <macro name="Literaturverzeichnis_Reihenfolge">
+    <!-- Authorities (A), Awards (B), Cases (C) -->
     <choose>
-      <if type="musical_score" match="any">
+      <if type="musical_score" match="any">                                         <!-- Platzhalter -->
+        <text value="A"/>
         <names variable="author"/>
       </if>
-      <else-if type="entry-encyclopedia" match="all" variable="keyword">
+      <else-if type="entry-encyclopedia" match="all" variable="keyword">            <!-- Kommentar mit Sachtitel -->
+        <text value="A"/>
         <text variable="original-title"/>
       </else-if>
-      <else-if type="entry-encyclopedia" match="all" variable="original-author">
+      <else-if type="entry-encyclopedia" match="all" variable="original-author">    <!-- Kommentar mit Begründer -->
+        <text value="A"/>
         <names variable="original-author"/>
       </else-if>
-      <else-if type="entry-encyclopedia" match="all">
+      <else-if type="entry-encyclopedia" match="all">                               <!-- Sonstiges Kommentar -->
+        <text value="A"/>
         <names variable="editor"/>
       </else-if>
-      <else>
-        <names variable="author editor"/>
-        <text variable="publisher"/>
+      <else-if type="legal_case" match="all">                                       <!-- Gerichts- und Schiedsgerichtsentscheidungen -->
+          <choose>
+            <if variable="event-place" jurisdiction="arb.csl" match="any">          <!-- Arbitral Award -->
+              <text value="B"/>
+              <names variable="author"/>
+            </if>
+            <else>                                                                  <!-- Case -->
+              <text value="C"/>
+              <names variable="author editor"/>
+              <text variable="publisher"/>
+            </else>
+          </choose>
+      </else-if>
+      <else>                                                                        <!-- Sonstige Quellen -->
+        <text value="A"/>
       </else>
     </choose>
   </macro>
@@ -135,14 +150,12 @@
     <!-- ist Gewöhnungssache, aber sonst nicht weiter schlimm -->
 
 
+
     <layout delimiter="; " prefix="[" suffix="]">
       <choose>
 
 
-
-
-
-        <!-- Quellentyp: GERICHTSENTSCHEIDUNG -->
+        <!-- Quellentyp: GERICHTSENTSCHEIDUNG / SCHIEDSGERICHTSENTSCHEIDUNG -->
         <if type="legal_case" match="any">
           <text variable="title" form="short"/>
           <text variable="original-publisher" prefix=", "/>
@@ -151,11 +164,14 @@
               <text variable="authority" prefix=", "/>
             </if>
           </choose>
+
+          <!-- nur bei Schiedsgerichten: Az. direkt im Inline-Zitat -->
           <choose>
             <if match="any" variable="event-place">
               <text variable="number" prefix=" Case No. "/>
             </if>
           </choose>
+
           <choose>
             <if match="any" variable="locator">
               <label prefix=", " variable="locator" form="short"/>
@@ -380,188 +396,9 @@
     <layout>
       <choose>
 
-        <!-- Quellentyp: GERICHTSENTSCHEIDUNG -->
-        <if type="legal_case" match="any">
-          <choose>
-            <if match="none" variable="event-place">
-              <text variable="authority" display="left-margin"/>
-              <choose>
-                <if match="none" variable="authority">
-                  <text value="## TODO: Gericht fehlt ##"/>
-                </if>
-              </choose>
-              <text variable="original-title" font-style="italic" display="left-margin"/>
-              <choose>
-                <if match="none" variable="original-title">
-                  <text variable="title" form="short" font-style="italic" display="left-margin"/>
-                </if>
-              </choose>
-              <choose>
-                <if match="none" variable="original-title title">
-                  <text value="## TODO: Parteien/Fallbezeichnung fehlt ##"/>
-                </if>
-              </choose>
-              <date form="text" variable="issued" display="left-margin">
-                <date-part name="day" form="numeric-leading-zeros"/>
-              </date>
-              <choose>
-                <if match="none" variable="issued">
-                  <text value="## TODO: Datum fehlt ##"/>
-                </if>
-              </choose>
-              <text variable="number" display="left-margin" prefix="Case No. "/>
-              <choose>
-                <if match="none" variable="number">
-                  <text value="## TODO: Az. fehlt ##"/>
-                </if>
-              </choose>
-              <choose>
-                <if match="any" variable="page">
-                  <text value="" display="left-margin" prefix="available at:"/>
-                  <group display="left-margin">
-                    <text variable="container-title" suffix=", "/>
-                    <text variable="volume" prefix="Volume " suffix=", "/>
-                    <date date-parts="year" form="text" variable="issued" suffix=", "/>
-                    <label suffix=" " variable="page" form="short"/>
-                    <text variable="page"/>
-                  </group>
-                </if>
-                <else>
-                  <group display="left-margin">
-                    <text variable="container-title"/>
-                    <text variable="volume" prefix=" No. "/>
-                  </group>
-                </else>
-              </choose>
-              <text macro="End_Line_1" display="left-margin"/>
-              <text macro="End_Line_2" display="left-margin"/>
-              <text macro="End_Line_3" display="left-margin"/>
-            </if>
-            <else>
-              <text variable="authority" display="left-margin"/>
-              <choose>
-                <if match="none" variable="authority">
-                  <text value="## TODO: Gericht fehlt ##"/>
-                </if>
-              </choose>
-              <text variable="original-title" font-style="italic" display="left-margin"/>
-              <choose>
-                <if match="none" variable="original-title">
-                  <text value="## Todo: Angabe der Parteien fehlt in Zotero ##"/>
-                </if>
-              </choose>
-              <text variable="genre" display="left-margin"/>
-              <choose>
-                <if match="none" variable="genre">
-                  <text value="## todo: Art der Entscheidung eintragen (Zotero: &quot;genre: ##&quot; in Extra) ##" display="left-margin"/>
-                </if>
-              </choose>
-              <date form="text" variable="issued" display="left-margin"/>
-              <choose>
-                <if match="none" variable="issued">
-                  <text value="## TODO: Datum fehlt ##"/>
-                </if>
-              </choose>
-              <group display="left-margin">
-                <text variable="original-publisher"/>
-                <text value=" Case No. "/>
-                <text variable="number"/>
-              </group>
-              <choose>
-                <if match="none" variable="original-publisher">
-                  <text value="## TODO: Abkürzung der Schiedsinstitution fehlt (Zotero: &quot;original-publisher: ...&quot; im Extra-Feld) ##"/>
-                </if>
-              </choose>
-              <choose>
-                <if match="none" variable="number">
-                  <text value="## TODO: Az. fehlt ##"/>
-                </if>
-              </choose>
-              <choose>
-                <if match="any" variable="page">
-                  <group display="left-margin" delimiter=", ">
-                    <text variable="container-title"/>
-                    <text variable="volume" prefix="Volume "/>
-                    <date date-parts="year" form="text" variable="issued"/>
-                    <text variable="page" prefix="pp. "/>
-                  </group>
-                </if>
-                <else-if match="any" variable="container-title">
-                  <group display="left-margin">
-                    <text variable="container-title"/>
-                    <text value=" No. "/>
-                    <text variable="volume"/>
-                  </group>
-                </else-if>
-              </choose>
-              <text macro="End_Line_1" display="left-margin"/>
-              <text macro="End_Line_2" display="left-margin"/>
-              <text macro="End_Line_3" display="left-margin"/>
-            </else>
-          </choose>
-        </if>
 
-
-
-
-        <!-- Quellentyp: SAMMELBANDBEITRAG  -->
-        <else-if type="chapter" match="any">
-          <names variable="author" font-style="italic" display="left-margin" suffix=",">
-            <name/>
-          </names>
-          <text variable="title" display="left-margin" suffix=","/>
-          <names variable="editor" display="left-margin" prefix="in: " suffix=",">
-            <name/>
-            <label prefix=" (" suffix=")"/>
-          </names>
-          <choose>
-            <if match="none" variable="editor">
-              <text value="## TODO: Hrsg. fehlt in Zotero ##"/>
-            </if>
-          </choose>
-          <text variable="container-title" display="left-margin" suffix=","/>
-          <choose>
-            <if match="none" variable="container-title">
-              <text value="## TODO: Name des Gesamtwerks fehlt ##"/>
-            </if>
-          </choose>
-          <group display="left-margin">
-            <label suffix=" " variable="page" form="short"/>
-            <text variable="page" suffix=","/>
-          </group>
-          <choose>
-            <if match="none" variable="page">
-              <text value="## Achtung: Seitenzahlen fehlen in Zotero! ##"/>
-            </if>
-          </choose>
-          <number suffix=" edition, " variable="edition" form="ordinal"/>
-          <group display="left-margin">
-            <text variable="publisher-place"/>
-            <choose>
-              <if match="none" variable="publisher-place">
-                <text value="## Publikationsort fehlt in Zotero! ##"/>
-              </if>
-            </choose>
-            <date date-parts="year" form="text" variable="issued" prefix=", " suffix="."/>
-            <choose>
-              <if match="none" variable="issued">
-                <text value="## TODO: Publikationsjahr feht ##"/>
-              </if>
-            </choose>
-          </group>
-          <choose>
-            <if match="none" variable="publisher-place issued">
-              <text value="## Ort fehlt ## , ## Jahr fehlt ## ." display="left-margin"/>
-            </if>
-          </choose>
-          <text macro="End_Line_1" display="left-margin"/>
-          <text macro="End_Line_2" display="left-margin"/>
-          <text macro="End_Line_3" display="left-margin"/>
-        </else-if>
-
-
-        <!-- Quellentyp: ## -->
-        <else-if type="paper-conference" match="any">
+        <!-- Quellentyp: CISG-AC Opinion -->
+        <if type="paper-conference" match="any">
           <choose>
             <if match="any" variable="compiler">
               <names variable="compiler"/>
@@ -573,13 +410,13 @@
               <text value="## TODO: Angabe des Rapporteurs fehlt (Zotero &quot;compiler: ...&quot; im Extra-Feld) ##"/>
             </if>
           </choose>
-          <text variable="title" display="left-margin" suffix=","/>
+          <text variable="title" display="block" suffix=","/>
           <choose>
             <if match="none" variable="title">
               <text value="##Titel fehlt##"/>
             </if>
           </choose>
-          <group display="left-margin">
+          <group display="block">
             <text variable="event-place" suffix=", "/>
             <choose>
               <if match="none" variable="event-place">
@@ -598,130 +435,140 @@
               <text value="## Ort fehlt ## , ## Jahr fehlt ## ."/>
             </if>
           </choose>
-          <text macro="End_Line_1" display="left-margin"/>
-          <text macro="End_Line_2" display="left-margin"/>
-          <text macro="End_Line_3" display="left-margin"/>
-        </else-if>
-
-
-        <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ -->
-        <else-if type="article-journal" match="any">
-          <text macro="Langnamen_Autoren" display="left-margin"/>
-          <choose>
-            <if match="none" variable="author">
-              <text value="## TODO: Autoren fehlen ##"/>
-            </if>
-          </choose>
-          <text variable="title" display="left-margin" suffix=","/>
-          <choose>
-            <if match="none" variable="title">
-              <text value="## Aufsatztitel fehlt ## ," display="left-margin"/>
-            </if>
-          </choose>
-          <group>
-            <text value="in: " display="left-margin"/>
-            <text variable="container-title"/>
-            <choose>
-              <if match="any" variable="container-title-short">
-                <text variable="container-title-short" prefix=" (" suffix=")"/>
-              </if>
-            </choose>
-            <text value=", "/>
-          </group>
-          <choose>
-            <if match="none" variable="container-title">
-              <text value="## Zeitschriftentitel fehlt ##"/>
-            </if>
-          </choose>
-          <group display="left-margin">
-            <text variable="volume" prefix="Volume " suffix=", "/>
-            <text variable="issue" prefix="Issue " suffix=", "/>
-          </group>
-          <text variable="page" display="left-margin" prefix="pp. " suffix=","/>
-          <choose>
-            <if match="none" variable="page">
-              <text value="## TODO: Seiten fehlen ##" display="left-margin"/>
-            </if>
-          </choose>
-          <group display="left-margin">
-            <text variable="publisher-place" display="left-margin" suffix=", "/>
-            <choose>
-              <if match="none" variable="publisher-place">
-                <text value="## TODO: Ort fehlt ## , "/>
-              </if>
-            </choose>
-            <date date-parts="year" form="text" variable="issued" suffix="."/>
-            <choose>
-              <if match="none" variable="issued">
-                <text value="## TODO: Jahr fehlt ## ."/>
-              </if>
-            </choose>
-          </group>
-          <choose>
-            <if match="none" variable="publisher-place issued">
-              <text value="## Ort fehlt ## , ## Erscheinungsjahr fehlt ## ."/>
-            </if>
-          </choose>
-          <text macro="End_Line_1" display="left-margin"/>
-          <text macro="End_Line_2" display="left-margin"/>
-          <text macro="End_Line_3" display="left-margin"/>
-        </else-if>
-
-
-
-        <!-- Quellentyp: MONOGRAPHIE -->
-        <else-if type="book" match="any">
-
-
-
-
-
-
-<group display="left-margin">
-          <text macro="Langnamen_Autoren" />
-</group>
-
-<group display="block">
-          <choose>
-            <if match="none" variable="author">
-              <text value="## TODO: Autoren fehlen ##"/>
-            </if>
-          </choose>
-          <text variable="title" display="left-margin" suffix=","/>
-          <choose>
-            <if match="none" variable="title">
-              <text value="## TODO: Titel fehlt ##"/>
-            </if>
-          </choose>
-
-
-
-            <number suffix=" edition, " variable="edition" form="ordinal"/>
-            <text variable="publisher-place" suffix=", "/>
-            <date date-parts="year" form="text" variable="issued" suffix="."/>
-
-
-
-          <choose>
-            <if match="none" variable="publisher-place">
-              <text value="## TODO: Ort fehlt ##"/>
-            </if>
-          </choose>
-          <choose>
-            <if match="none" variable="issued">
-              <text value="## TODO: Jahr fehl t##"/>
-            </if>
-          </choose>
-</group>
-
           <text macro="End_Line_1" display="block"/>
           <text macro="End_Line_2" display="block"/>
           <text macro="End_Line_3" display="block"/>
+        </if>
 
+        <!-- Quellentyp: GERICHTSENTSCHEIDUNG / SCHIEDSGERICHTSENTSCHEIDUNG -->
+        <else-if type="legal_case" match="any">
+          <choose>
 
+            <!-- GERICHTSENTSCHEIDUNG -->
+            <if match="none" variable="event-place">
 
+              <!-- Inline-Zitat wiederholen -->
+              <text variable="title" form="short" display="left-margin"/>
 
+              <text variable="authority" display="block"/>
+              <choose>
+                <if match="none" variable="authority">
+                  <text value="## TODO: Gericht fehlt ##"/>
+                </if>
+              </choose>
+              <text variable="original-title" font-style="italic" display="block"/>
+              <choose>
+                <if match="none" variable="original-title">
+                  <text variable="title" form="short" font-style="italic" display="block"/>
+                </if>
+              </choose>
+              <choose>
+                <if match="none" variable="original-title title">
+                  <text value="## TODO: Parteien/Fallbezeichnung fehlt ##" display="block"/>
+                </if>
+              </choose>
+              <date form="text" variable="issued" display="block">
+                <date-part name="day" form="numeric-leading-zeros"/>
+              </date>
+              <choose>
+                <if match="none" variable="issued">
+                  <text value="## TODO: Datum fehlt ##" display="block"/>
+                </if>
+              </choose>
+              <text variable="number" display="block" prefix="Case No. "/>
+              <choose>
+                <if match="none" variable="number">
+                  <text value="## TODO: Az. fehlt ##" display="block"/>
+                </if>
+              </choose>
+              <choose>
+                <if match="any" variable="page">
+                  <text value="" display="block" prefix="available at:"/>
+                  <group display="block">
+                    <text variable="container-title" suffix=", "/>
+                    <text variable="volume" prefix="Volume " suffix=", "/>
+                    <date date-parts="year" form="text" variable="issued" suffix=", "/>
+                    <label suffix=" " variable="page" form="short"/>
+                    <text variable="page"/>
+                  </group>
+                </if>
+                <else>
+                  <group display="block">
+                    <text variable="container-title"/>
+                    <text variable="volume" prefix=" No. "/>
+                  </group>
+                </else>
+              </choose>
+              <text macro="End_Line_1" display="block"/>
+              <text macro="End_Line_2" display="block"/>
+              <text macro="End_Line_3" display="block"/>
+            </if>
+
+            <!-- SCHIEDSGERICHTSENTSCHEIDUNG -->
+            <else>
+              <text variable="authority" display="block"/>
+              <choose>
+                <if match="none" variable="authority">
+                  <text value="## TODO: Gericht fehlt ##"/>
+                </if>
+              </choose>
+              <text variable="original-title" font-style="italic" display="block"/>
+              <choose>
+                <if match="none" variable="original-title">
+                  <text value="## Todo: Angabe der Parteien fehlt in Zotero ##"/>
+                </if>
+              </choose>
+              <text variable="genre" display="block"/>
+              <choose>
+                <if match="none" variable="genre">
+                  <text value="## todo: Art der Entscheidung eintragen (Zotero: &quot;genre: ##&quot; in Extra) ##" display="block"/>
+                </if>
+              </choose>
+              <date form="text" variable="issued" display="block"/>
+              <choose>
+                <if match="none" variable="issued">
+                  <text value="## TODO: Datum fehlt ##"/>
+                </if>
+              </choose>
+              <group display="block">
+                <text variable="original-publisher"/>
+                <text value=" Case No. "/>
+                <text variable="number"/>
+              </group>
+              <choose>
+                <if match="none" variable="original-publisher">
+                  <text value="## TODO: Abkürzung der Schiedsinstitution fehlt (Zotero: &quot;original-publisher: ...&quot; im Extra-Feld) ##"/>
+                </if>
+              </choose>
+              <choose>
+                <if match="none" variable="number">
+                  <text value="## TODO: Az. fehlt ##"/>
+                </if>
+              </choose>
+              <choose>
+                <if match="any" variable="page">
+                  <group display="block" delimiter=", ">
+                    <text variable="container-title"/>
+                    <text variable="volume" prefix="Volume "/>
+                    <date date-parts="year" form="text" variable="issued"/>
+                    <text variable="page" prefix="pp. "/>
+                  </group>
+                </if>
+                <else-if match="any" variable="container-title">
+                  <group display="block">
+                    <text variable="container-title"/>
+                    <text value=" No. "/>
+                    <text variable="volume"/>
+                  </group>
+                </else-if>
+              </choose>
+              <text macro="End_Line_1" display="block"/>
+              <text macro="End_Line_2" display="block"/>
+              <text macro="End_Line_3" display="block"/>
+            </else>
+          </choose>
         </else-if>
+
 
 
         <!-- Quellentyp: KOMMENTAR -->
@@ -741,7 +588,6 @@
             </else>
           </choose>
 
-
           <!-- ## wip: disambiguation -->
           <choose>
             <if disambiguate="true">
@@ -753,18 +599,22 @@
               </choose>
             </if>
           </choose>
-          
 
-          <text variable="original-title" display="left-margin" suffix=","/>
+          <text variable="original-title" display="block" suffix=","/>
           <choose>
             <if match="none" variable="original-title">
-              <text value="## TODO: Titel des Kommentars fehlt (Zotero: 'Original Title: ...' im Extra-Feld) ##"/>
+              <text value="## TODO: Titel des Kommentars fehlt (Zotero: 'Original Title: ...' im Extra-Feld) ##" display="block"/>
             </if>
           </choose>
-          <text variable="volume" display="left-margin" prefix="Volume " suffix=","/>
-          <number display="left-margin" suffix=" edition, " variable="edition" form="ordinal"/>
-          <date form="text" variable="submitted" display="left-margin" prefix="Digital legal commentary, issued " suffix=","/>
-          <group display="left-margin">
+
+          <text variable="volume" display="block" prefix="Volume " suffix=","/>
+
+          <group display="block">
+
+            <number variable="edition" suffix=" edition, "  form="ordinal"/>
+
+            <date form="text" variable="submitted" display="block" prefix="Digital legal commentary, issued " suffix=","/>
+
             <text variable="publisher-place" suffix=", "/>
             <choose>
               <if match="none" variable="publisher-place">
@@ -780,13 +630,181 @@
           </group>
           <choose>
             <if match="none" variable="publisher-place issued">
-              <text value="## Ort fehlt ## , ## Jahr fehlt ## ."/>
+              <text value="## Ort fehlt ## , ## Jahr fehlt ## ." display="block"/>
             </if>
           </choose>
-          <text macro="End_Line_1" display="left-margin"/>
-          <text macro="End_Line_2" display="left-margin"/>
-          <text macro="End_Line_3" display="left-margin"/>
+
+          <text macro="End_Line_1" display="block"/>
+          <text macro="End_Line_2" display="block"/>
+          <text macro="End_Line_3" display="block"/>
         </else-if>
+
+
+        <!-- Quellentyp: MONOGRAPHIE -->
+        <else-if type="book" match="any">
+
+          <text macro="Langnamen_Autoren" display="block"/>
+          <choose>
+            <if match="none" variable="author">
+              <text value="## TODO: Autoren fehlen ##" display="block"/>
+            </if>
+          </choose>
+
+          <text variable="title" display="block" suffix=","/>
+          <choose>
+            <if match="none" variable="title">
+              <text value="## TODO: Titel fehlt ##" display="block"/>
+            </if>
+          </choose>
+
+          <group display="block">
+            <number suffix=" edition, " variable="edition" form="ordinal"/>
+            <text variable="publisher-place" suffix=", "/>
+            <date date-parts="year" form="text" variable="issued" suffix="."/>
+          </group>
+          <choose>
+            <if match="none" variable="publisher-place">
+              <text value="## TODO: Ort fehlt ##" display="block"/>
+            </if>
+          </choose>
+          <choose>
+            <if match="none" variable="issued">
+              <text value="## TODO: Jahr fehl t##" display="block"/>
+            </if>
+          </choose>
+
+
+          <text macro="End_Line_1" display="block"/>
+          <text macro="End_Line_2" display="block"/>
+          <text macro="End_Line_3" display="block"/>
+
+        </else-if>
+
+
+
+        <!-- Quellentyp: SAMMELBANDBEITRAG  -->
+        <else-if type="chapter" match="any">
+          <names variable="author" font-style="italic" display="block" suffix=",">
+            <name/>
+          </names>
+          <text variable="title" display="block" suffix=","/>
+          <names variable="editor" display="block" prefix="in: " suffix=",">
+            <name/>
+            <label prefix=" (" suffix=")"/>
+          </names>
+          <choose>
+            <if match="none" variable="editor">
+              <text value="## TODO: Hrsg. fehlt in Zotero ##"/>
+            </if>
+          </choose>
+          <text variable="container-title" display="block" suffix=","/>
+          <choose>
+            <if match="none" variable="container-title">
+              <text value="## TODO: Name des Gesamtwerks fehlt ##"/>
+            </if>
+          </choose>
+          <group display="block">
+            <label suffix=" " variable="page" form="short"/>
+            <text variable="page" suffix=","/>
+          </group>
+          <choose>
+            <if match="none" variable="page">
+              <text value="## Achtung: Seitenzahlen fehlen in Zotero! ##"/>
+            </if>
+          </choose>
+          <number suffix=" edition, " variable="edition" form="ordinal"/>
+          <group display="block">
+            <text variable="publisher-place"/>
+            <choose>
+              <if match="none" variable="publisher-place">
+                <text value="## Publikationsort fehlt in Zotero! ##"/>
+              </if>
+            </choose>
+            <date date-parts="year" form="text" variable="issued" prefix=", " suffix="."/>
+            <choose>
+              <if match="none" variable="issued">
+                <text value="## TODO: Publikationsjahr feht ##"/>
+              </if>
+            </choose>
+          </group>
+          <choose>
+            <if match="none" variable="publisher-place issued">
+              <text value="## Ort fehlt ## , ## Jahr fehlt ## ." display="block"/>
+            </if>
+          </choose>
+          <text macro="End_Line_1" display="block"/>
+          <text macro="End_Line_2" display="block"/>
+          <text macro="End_Line_3" display="block"/>
+        </else-if>
+
+
+
+
+
+        <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ -->
+        <else-if type="article-journal" match="any">
+          <text macro="Langnamen_Autoren" display="block"/>
+          <choose>
+            <if match="none" variable="author">
+              <text value="## TODO: Autoren fehlen ##"/>
+            </if>
+          </choose>
+          <text variable="title" display="block" suffix=","/>
+          <choose>
+            <if match="none" variable="title">
+              <text value="## Aufsatztitel fehlt ## ," display="block"/>
+            </if>
+          </choose>
+          <group>
+            <text value="in: " display="block"/>
+            <text variable="container-title"/>
+            <choose>
+              <if match="any" variable="container-title-short">
+                <text variable="container-title-short" prefix=" (" suffix=")"/>
+              </if>
+            </choose>
+            <text value=", "/>
+          </group>
+          <choose>
+            <if match="none" variable="container-title">
+              <text value="## Zeitschriftentitel fehlt ##"/>
+            </if>
+          </choose>
+          <group display="block">
+            <text variable="volume" prefix="Volume " suffix=", "/>
+            <text variable="issue" prefix="Issue " suffix=", "/>
+          </group>
+          <text variable="page" display="block" prefix="pp. " suffix=","/>
+          <choose>
+            <if match="none" variable="page">
+              <text value="## TODO: Seiten fehlen ##" display="block"/>
+            </if>
+          </choose>
+          <group display="block">
+            <text variable="publisher-place" display="block" suffix=", "/>
+            <choose>
+              <if match="none" variable="publisher-place">
+                <text value="## TODO: Ort fehlt ## , "/>
+              </if>
+            </choose>
+            <date date-parts="year" form="text" variable="issued" suffix="."/>
+            <choose>
+              <if match="none" variable="issued">
+                <text value="## TODO: Jahr fehlt ## ."/>
+              </if>
+            </choose>
+          </group>
+          <choose>
+            <if match="none" variable="publisher-place issued">
+              <text value="## Ort fehlt ## , ## Erscheinungsjahr fehlt ## ."/>
+            </if>
+          </choose>
+          <text macro="End_Line_1" display="block"/>
+          <text macro="End_Line_2" display="block"/>
+          <text macro="End_Line_3" display="block"/>
+        </else-if>
+
+
 
 
         <!-- Quellentyp: SONSTIGES / ALLES ANDERE / NICHT PROGRAMMIERT -->
