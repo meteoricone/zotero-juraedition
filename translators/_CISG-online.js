@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2024-11-23 09:29:53"
+	"lastUpdated": "2026-10-06 11:52:57"
 }
 
 /*
@@ -142,7 +142,7 @@ function saveMultipleAcOps(doc, url) {
 			// Finalize item
 			item.url = url;
 			item.extra = extras;
-			item.abstract = reference;
+			item.abstractNote = reference;
 			item.complete();
 		};
 	};
