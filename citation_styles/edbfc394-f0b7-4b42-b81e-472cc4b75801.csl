@@ -297,12 +297,12 @@
 
 
 
-        <!-- Quellentyp: ## -->
+        <!-- Quellentyp: CISG-AC Op. -->
         <else-if type="paper-conference" match="any">
           <text variable="title" form="short"/>
           <choose>
             <if match="any" variable="locator">
-              <label variable="locator"/>
+              <label variable="locator" form="short" prefix=" " suffix=" "/>
               <text variable="locator"/>
             </if>
             <else>
