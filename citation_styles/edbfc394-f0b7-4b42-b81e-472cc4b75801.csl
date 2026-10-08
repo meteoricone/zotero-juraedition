@@ -18,7 +18,7 @@
       <name>Eric Mann</name>
     </author>
     <!-- updated ist zwingend; timestamp in speziellem Format -->
-    <updated>2026-10-07T12:00:00+00:00</updated>
+    <updated>2026-10-08T12:00:00+00:00</updated>
   </info>
 
 
@@ -44,6 +44,10 @@
       <term name="paragraph" form="short">
         <single>para.</single>
         <multiple>paras.</multiple>
+      </term>
+      <term name="translator" form="long">        <!-- Übersetzter ist damit natürlich insg. "verbraucht" -->
+        <single>original author</single>
+        <multiple>original authors</multiple>
       </term>
     </terms>
   </locale>
@@ -189,17 +193,31 @@
 
         <!-- Quellentyp: KOMMENTAR -->
         <else-if type="entry-encyclopedia" match="any">
-          <names variable="editor" font-variant="small-caps">
-            <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="2" et-al-use-first="1"/>
-            <et-al term="and others"/>
-            <substitute>
-              <names variable="collection-editor"/>
-            </substitute>
-          </names>
+
+
+          <!-- ein Name als Zitierkürzel -->
+
           <choose>
-            <if match="none" variable="editor collection-editor">
-              <text value="## Hrsg. fehlt ##"/>
+            <if match="any" variable="translator">
+              <names variable="translator" font-variant="small-caps">
+                <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="2" et-al-use-first="1"/>
+                <et-al term="and others"/>
+              </names>
             </if>
+
+            <else-if match="any" variable="editor collection-editor">
+              <names variable="editor" font-variant="small-caps">
+                <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="2" et-al-use-first="1"/>
+                <et-al term="and others"/>
+                <substitute>
+                  <names variable="collection-editor"/>
+                </substitute>
+              </names>
+            </else-if>
+            
+            <else>
+              <text value="## Hrsg. fehlt ##"/>
+            </else>
           </choose>
 
 
@@ -574,11 +592,12 @@
         <!-- Quellentyp: KOMMENTAR -->
         <else-if type="entry-encyclopedia" match="any">
           <choose>
-            <if match="any" variable="original-author">
-              <names variable="original-author">
+            <if match="any" variable="translator">
+              <names variable="translator">
                 <name/>
-                <label prefix=" (" suffix="),"/>
+                <label prefix=" (" suffix="), "/>
               </names>
+              <text macro="Langnamen_Herausgeber"/>
             </if>
             <else-if match="any" variable="editor">
               <text macro="Langnamen_Herausgeber"/>
