@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-29 21:21:00"
+	"lastUpdated": "2026-10-08 19:41:31"
 }
 
 /*
@@ -108,25 +108,160 @@ async function doWeb(doc, url) {
 
 async function scrapeCommentary(doc, url) {
 
-	await scrapeCommentaryISBN(doc, url);
-
-	/*
 	let citation = text(doc, ".citation");
 
-	if (citation.includes("BeckOK")) {
-		// ##todo lul
-		await scrapeJournal(doc, url);
+	if (citation.includes("beck-online.GROSSKOMMENTAR")) {
+		
+		await scrapeBeckOGK(doc, url);
 	} else {
-		await scrapeCommentaryISBN(doc, url);
+		await scrapeCommentaryStandard(doc, url);
 	};
-	*/
-
+	
 };
 
 
 
+async function scrapeBeckOGK(doc, url) {
 
-async function scrapeCommentaryISBN(doc, url) {
+	// Item erstllen
+	let item = new Zotero.Item("encyclopediaArticle");
+	item.title = "##BeckOGK";
+	let devInfo = "[Juraedition]<br><br>";
+
+	// URL / Permalink
+	item.url = text(doc, "#docUrl");
+
+	// Feststehende Metadaten einfach direkt ausfüllen
+	item.shortTitle = "BeckOGK";
+	item.encyclopediaTitle = "beck-online.GROSSKOMMENTAR";
+	item.originalTitle = "beck-online.GROSSKOMMENTAR";
+	item.publisher = "C.H. Beck";
+	item.place = "München";
+
+
+
+
+	
+
+
+
+
+	// Website-Titel enthält Kurzbezeichnung und Abschnitt/Norm
+	let websiteTitle = ZU.xpathText(doc, '//head/title[1]');
+	let titleRegex = /(.*?) \| (.*?) - beck-online/;
+	let matches = websiteTitle.match(titleRegex);
+	let abschnitt = "";																// wird weiter unten nochmal abgerufen 
+	// funktioniert generell nicht auf Titelseiten, z.B.: https://beck-online.beck.de/Bcid/Y-400-W-MuekoBGB
+	if (matches) {
+		// item.shortTitle = matches[1];
+		abschnitt = matches[2];
+		abschnitt = abschnitt.replace(/Rn\. [0-9a-z-\.]*(, \d+[a-z]*)?/, "");		// "Rn. 5.1-13x" bzw. "Rn. 68, 68a" entfernen
+		abschnitt = abschnitt.replace("§ ", "§ ");									// Geschütztes Leerzeichen
+		abschnitt = abschnitt.replace("Art. ", "Art. ");							// Geschütztes Leerzeichen
+		abschnitt = abschnitt.trimEnd();
+		item.pages = abschnitt;
+	};
+
+
+
+
+	// Bearbeiter ermitteln
+	let bearbeiter = text(doc, ".autor");
+
+	if (bearbeiter) {
+		let bearbeiters = bearbeiter.split("/");
+		for (let i = 0; i < bearbeiters.length; i++) {
+			let b = bearbeiters[i];
+			item.creators.push(ZU.cleanAuthor(b, "author", false));	
+		};
+	};
+
+
+
+	// Zitations-Info aus Box
+	let citation = text(doc, ".citation");
+	// devInfo += citation;
+
+	let herausgebers = "";
+	let gesamtherausgebers = "";
+	let citationRegex = /beck-online\.GROSSKOMMENTARGesamtHrsg:.(.+)Hrsg:.(.+)Stand:.([\d\.]+)/;
+	let citationMatch = citation.match(citationRegex);
+	if (citationMatch) {
+		gesamtherausgebers = citationMatch[1];
+		herausgebers = citationMatch[2];
+		item.date = citationMatch[3];
+		item.submitted = citationMatch[3];
+	}
+	if (herausgebers) {
+		herausgebers = herausgebers.split("/");
+		for (let hrsg of herausgebers) {
+			item.creators.push(ZU.cleanAuthor(hrsg, "editor", false));	
+		}
+	}
+	if (gesamtherausgebers) {
+		gesamtherausgebers = gesamtherausgebers.split("/");
+		for (let ghrsg of gesamtherausgebers) {
+			item.creators.push(ZU.cleanAuthor(ghrsg, "seriesEditor", false));	
+		}
+	}
+
+
+
+
+
+	item.libraryCatalog = "_beck-online";
+
+
+
+
+	// PDF-Download
+	let pdfUrl = url;
+	pdfUrl = pdfUrl
+		//.replace("https://beck-online.beck.de/", "https://beck-online.beck.de/Print/CurrentDoc")
+		.replace(/https:\/\/beck-online\.beck\.de\/(Dokument)?/, "https://beck-online.beck.de/Print/CurrentDoc")	// sometimes with, sometimes without /Dokument/
+		.replace(/#.*$/, "")																						// remove fragment identifier (anything after # in the URL)
+		.replace(/&anchor=.*$/, "")
+		.replace(/%2F/g, "%5C")
+		.replace(/%2e/g, ".")
+		+ "&printdialogmode=CurrentChapter&actionname=Index&gesamtversionpath=&timezone=Europe%2FBerlin&exportFormat=pdf";
+
+	//item.notes.push({note: pdfUrl});
+	devInfo += "Generierter Download-Link:<br>" + pdfUrl + "<br><br>";
+
+	item.attachments.push({
+		title: 'PDF',
+		mimeType: "application/pdf",
+		url: pdfUrl
+
+	});
+
+
+
+
+	// Anzeige- & Suchtitel (!) in Zotero zusammenbasteln
+	let altauflage = false;
+	if (doc.getElementById("dokument").className.includes("alteversion")) {
+		item.version = "Altauflage";
+		altauflage = true;
+	};
+
+	item.title = item.shortTitle + " | " + abschnitt + " (" + item.originalTitle + ")";
+	if (altauflage) {
+		item.title = item.shortTitle + " | " + abschnitt + " (" + item.date + ")"+ " (" + item.originalTitle + ")";
+	}
+
+
+	// Report speichern
+	item.notes.push({note: devInfo});
+
+
+	item.complete();
+}
+
+
+
+
+async function scrapeCommentaryStandard(doc, url) {
 
 	// Allgemeine Hinweise
 
@@ -152,7 +287,6 @@ async function scrapeCommentaryISBN(doc, url) {
 	}
 
 	// Altauflage?
-	// ##todo: was daraus machen haha
 	let altauflage = false;
 	if (doc.getElementById("dokument").className.includes("alteversion")) {
 		item.version = "Altauflage";
@@ -746,31 +880,6 @@ async function scrapeCommentaryISBN(doc, url) {
 
 
 
-
-async function scrapeBeckOK(doc, url) {
-	// ## Platzhalter
-
-
-
-	// Kommentartitel
-	// wird weiter unten noch überschrieben / ##todo: Namen wie in "Dreier, GG Kommentar" aus Titel entfernen
-	let kommentartitel = ZU.xpathText(doc, '//*[@id="toccontent"]/ul/li/a[2]');
-
-	// ## BeckOK
-	if (!kommentartitel) {
-		kommentartitel = ZU.xpathText(doc, '//*[@id="toccontent"]/ul/li/ul/li/a');
-	};
-
-
-
-
-
-
-
-
-
-	return false; 
-};
 
 
 
