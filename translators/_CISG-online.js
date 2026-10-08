@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-06 11:52:57"
+	"lastUpdated": "2026-10-08 20:04:12"
 }
 
 /*
@@ -26,7 +26,7 @@ function detectWeb(doc, url) {
 		return "case";
 	} else if (url.includes("/files/ac_op/")) {
 		return "conferencePaper";
-	} else if (url.includes("/cisg-bibliography")) {
+	} else if (url.includes("/bibliography")) {
 		return "multiple";
 	} else if (url.includes("/cisg-ac-opinions")) {
 		return "multiple";
@@ -48,7 +48,7 @@ async function doWeb (doc, url) {
 
 
 function saveMultiple(doc, url) {
-	if (url.includes("cisg-bibliography")) {
+	if (url.includes("bibliography")) {
 		saveBibliography(doc, url);
 	} else if (url.includes("cisg-ac-opinions")) {
 		saveMultipleAcOps(doc, url);
@@ -150,8 +150,12 @@ function saveMultipleAcOps(doc, url) {
 };
 
 
+
 // ## todo
 function saveBibliography(doc, url) {
+
+
+
 	var entries = {};                                   // create javascript object
 	for (let i = 0; i < 5000; i++) {					// cisg-online boasts over 4400 entries - this is the theoretical max of entries on the page
 		let entry = text(doc, ".is-content", i);
@@ -177,12 +181,17 @@ function saveBibliography(doc, url) {
 			let entry = items[key];
 			if (entry.includes(" (eds.),")) {
 				saveBookSection(entry, key);
-			// ## todo: other types
+			} else if (entry.match(/\d+[^,']+\(\d{4}\)/)) {		// regex for Journals, matches: ""... 26 Law Rev. (L.R.) (2026) ...""
+				saveJournalArticle(entry, key);
 			} else {
-				saveFallback(entry);
+				// ## todo: other types
+				saveFallback(entry, key);
 			};
 		};
 	};
+
+
+
 
 	function saveBookSection(entry, iterator) {
 		// Declare variables
@@ -245,10 +254,44 @@ function saveBibliography(doc, url) {
 		item.complete();
 	};
 
-	//  ## todo: other types
-	function saveFallback(entry) {
-		let item = new Zotero.Item("document");
+
+
+	function saveJournalArticle(entry, iterator) {
+		let item = new Zotero.Item("journalArticle");
+
+		// ##todo: parse entry
+
+		// PDF Attachment
+		let contentNode = doc.querySelectorAll(".is-content")[iterator];
+		let pdfUrl = attr(contentNode, "a", "href");	// if there is no link, this will simply return an empty string
+		item.attachments.push({
+			title: "CISG-online PDF",
+			mimeType: "application/pdf",
+			url: pdfUrl,								// if the string is empty, nothing happens
+		});
+
+		// Finalize
 		item.title = entry;
+		item.url = url;
+		item.complete();
+	}
+
+	//  ## todo: other types
+	function saveFallback(entry, iterator) {
+		let item = new Zotero.Item("document");
+
+		// PDF Attachment
+		let contentNode = doc.querySelectorAll(".is-content")[iterator];
+		let pdfUrl = attr(contentNode, "a", "href");	// if there is no link, this will simply return an empty string
+		item.attachments.push({
+			title: "CISG-online PDF",
+			mimeType: "application/pdf",
+			url: pdfUrl,								// if the string is empty, nothing happens
+		});
+
+		// Finalize
+		item.title = entry;
+		item.url = url;
 		item.complete();
 	}
 
