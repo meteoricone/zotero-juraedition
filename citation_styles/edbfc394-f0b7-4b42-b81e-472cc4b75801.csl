@@ -41,6 +41,7 @@
     <terms>
       <!-- alphabetische Sortierung bietet sich an :D -->
       <term name="article-locator" form="short">Art.</term>
+      <term name="article-locator" form="long">Art.</term>
       <term name="and others"/>
       <term name="collection-editor">
         <single>series editor</single>
@@ -396,22 +397,7 @@
         <!-- Quellentyp: MONOGRAPHIE -->
         <else-if type="book" match="any">
           <text macro="Autoren_Kurz"/>
-
-
-
-
-          <!-- ## wip: disambiguation -->
-          <choose>
-          <if disambiguate="true">
-            <text variable="license" prefix=" "/>
-            <choose>
-              <if match="none" variable="license">
-                <text value=" ##"/>
-              </if>
-            </choose>
-          </if>
-        </choose>
-
+          <!-- disambiguation im Macro -->
 
 
 
@@ -443,14 +429,14 @@
           <text macro="Autoren_Kurz"/>
 
 
-          <!-- Disambiguation vergleich nur ohne Locator -->
+          <!-- Disambiguation Vergleich nur ohne Locator -->
 
 
 
           <choose>
             <if match="any" variable="locator">
               <text value=", "/>
-              <label variable="locator"/>
+              <label variable="locator" form="short"/>
               <text value=" "/>
               <text variable="locator"/>
             </if>
@@ -462,18 +448,8 @@
         <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ -->
         <else-if type="article-journal" match="any">
           <text macro="Autoren_Kurz"/>
+          <!-- disambiguation im Makro -->
 
-          <!-- ## wip: disambiguation -->
-          <choose>
-            <if disambiguate="true">
-              <text variable="license" prefix=" "/>
-              <choose>
-                <if match="none" variable="license">
-                  <text value=" ##"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
 
           <choose>
             <if match="any" variable="locator">
