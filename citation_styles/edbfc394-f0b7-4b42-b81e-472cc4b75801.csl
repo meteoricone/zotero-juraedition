@@ -7,6 +7,13 @@
 <!-- default-locale="en-GB" heißt, dass als Sprache nur British English gewählt werden kann > verhindert Probleme durch falsche Sprach-Einstellungen -->
 
 
+
+<!-- ACHTUNG: Groups und auch Makros sind implizite If-Statements! -->
+<!-- Variablen, die ein ##-Fallback zeigen sollen, können deshalb nicht über Makros gecallt werden! -->
+
+<!-- Ahhhhh das gilt sogar für If-Statements selbst! -->
+<!-- Wenn diese mind. eine Variable callen und dann keine Variable vorhanden ist, wird auch Text etc nicht angezeigt! -->
+
   
   <info>
     <!-- title ist zwingend -->
@@ -18,16 +25,31 @@
       <name>Eric Mann</name>
     </author>
     <!-- updated ist zwingend; timestamp in speziellem Format -->
-    <updated>2026-10-08T12:00:00+00:00</updated>
+    <updated>2026-10-11T12:00:00+00:00</updated>
   </info>
 
 
-  <!-- locale-Element legt Übersetzungen bestimmter Terms (quasi feststehende Begriffe) fest -->
+  <!-- locale-Element legt Übersetzungen bestimmter Terms (quasi feststehende Begriffe) fest sowie das Datumslayout -->
   <locale xml:lang="en">
+
+    <date form="text">
+      <date-part name="day" form="numeric-leading-zeros" suffix=" "/>
+      <date-part name="month" suffix=" "/>
+      <date-part name="year" form="long"/>
+    </date>
+
     <terms>
       <!-- alphabetische Sortierung bietet sich an :D -->
-      <term name="article" form="short">Art.</term>
+      <term name="article-locator" form="short">Art.</term>
       <term name="and others"/>
+      <term name="collection-editor">
+        <single>series editor</single>
+        <multiple>series editors</multiple>
+      </term>
+      <term name="compiler">                      <!-- für Rapporteur (bei CISG-AC Op.) zweckentfremdet -->
+        <single>rapporteur</single>
+        <multiple>rapporteurs</multiple>
+      </term>
       <term name="issue" form="short">
         <single>para.</single>
         <multiple>paras.</multiple>
@@ -49,6 +71,14 @@
         <single>original author</single>
         <multiple>original authors</multiple>
       </term>
+
+      <term name="ordinal">ᵗʰ</term>
+      <term name="ordinal-01">ˢᵗ</term>
+      <term name="ordinal-02">ⁿᵈ</term>
+      <term name="ordinal-03">ʳᵈ</term>
+      <term name="ordinal-11">ᵗʰ</term>
+      <term name="ordinal-12">ᵗʰ</term>
+      <term name="ordinal-13">ᵗʰ</term>
     </terms>
   </locale>
 
@@ -60,6 +90,30 @@
 
 
 
+  <macro name="Autoren_Kurz">
+    <names variable="author" font-variant="small-caps">
+      <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="1" et-al-use-first="1"/>
+      <et-al term="and others"/>
+    </names>
+
+              <!-- disambiguation -->
+          <choose>
+            <if disambiguate="true">
+              <text variable="license" prefix=" "/>
+              <choose>
+                <if match="none" variable="license">
+                  <text value=" ##"/>
+                </if>
+              </choose>
+            </if>
+          </choose>
+  </macro>
+
+  <macro name="Autoren_Lang">
+    <names variable="author" suffix="," font-style="italic">
+      <name/>
+    </names>
+  </macro>
 
   <macro name="End_Line_1">
     <choose>
@@ -67,7 +121,7 @@
         <text value="Available at: "/>
       </if>
       <else>
-        <text value="Available only in print. ## Korrekt? ##"/>
+        <text value="Available only in print. ##Korrekt?"/>
       </else>
     </choose>
   </macro>
@@ -84,119 +138,43 @@
     <text value="Cited in"/>
   </macro>
 
-  <macro name="Kurznamen_Autoren">
-    <names variable="author" font-variant="small-caps">
-      <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="1" et-al-use-first="1"/>
-      <et-al term="and others"/>
-    </names>
-  </macro>
-
-  <macro name="Langnamen_Autoren">
-    <names variable="author" suffix=",">
-      <name/>
-    </names>
-  </macro>
-  <macro name="Langnamen_Herausgeber">
-    <names variable="editor">
-      <name/>
+  <macro name="GHrsg_Lang">
+    <names variable="collection-editor">
+      <name  font-style="italic"/>
       <label prefix=" (" suffix="),"/>
     </names>
   </macro>
 
-  <macro name="Literaturverzeichnis_Reihenfolge">
-    <!-- Authorities (A), Awards (B), Cases (C) -->
-    <choose>
-      <if type="musical_score" match="any">                                         <!-- Platzhalter -->
-        <text value="A"/>
-        <names variable="author"/>
-      </if>
-      <else-if type="entry-encyclopedia" match="all" variable="keyword">            <!-- Kommentar mit Sachtitel -->
-        <text value="A"/>
-        <text variable="original-title"/>
-      </else-if>
-      <else-if type="entry-encyclopedia" match="all" variable="original-author">    <!-- Kommentar mit Begründer -->
-        <text value="A"/>
-        <names variable="original-author"/>
-      </else-if>
-      <else-if type="entry-encyclopedia" match="all">                               <!-- Sonstiges Kommentar -->
-        <text value="A"/>
-        <names variable="editor"/>
-      </else-if>
-      <else-if type="legal_case" match="all">                                       <!-- Gerichts- und Schiedsgerichtsentscheidungen -->
-          <choose>
-            <if variable="event-place" jurisdiction="arb.csl" match="any">          <!-- Arbitral Award -->
-              <text value="B"/>
-              <names variable="author"/>
-            </if>
-            <else>                                                                  <!-- Case -->
-              <text value="C"/>
-              <names variable="author editor"/>
-              <text variable="publisher"/>
-            </else>
-          </choose>
-      </else-if>
-      <else>                                                                        <!-- Sonstige Quellen -->
-        <text value="A"/>
-      </else>
-    </choose>
+  <macro name="Hrsg_Lang">
+    <names variable="editor">
+      <name  font-style="italic"/>
+      <label prefix=" (" suffix="),"/>
+    </names>
   </macro>
 
 
 
-   <!-- das citation-Element legt die Zitierweise in den Inline-Citations fest -->
-  <citation disambiguate-add-year-suffix="false">
-    <!-- ich weiß nicht warum aber das auf "true" zu setzen sorgt dafür, dass choose>disambiguate verschwindet?? -->
-   <!-- das sollte eigenltihc nicht so sein, weil nach Specs sollte das if-statement dem year-suffix vorgehen!! ("Four methods are available to eliminate such ambiguity, which are always tried in the following order:") -->
-   <!-- wobei es an anderer Stelle bzgl. choose heißt: "This attempt at disambiguation is only made when all other disambiguation methods have failed to uniquely identify the target source." -->
+  <macro name="Jurisdiction">
+                <choose>
+                <if match="none" variable="jurisdiction">
+                  <text value="##Jurisdiction"/>
+                </if>
+                <else-if match="any" jurisdiction="at">
+                  <text value="Austria"/>
+                </else-if>
+                <else-if match="any" jurisdiction="de">
+                  <text value="Germany"/>
+                </else-if>
+                <else-if match="any" jurisdiction="us">
+                  <text value="United States"/>
+                </else-if>
+                <else>
+                  <text variable="jurisdiction" prefix="##Zitierstil ergänzen: "/>
+                </else>
+              </choose>
+  </macro>
 
-    <!-- die disambiguation kickt, wenn beim Rendern ohne Locator mehrere Einträge gleich aussehen -->
-    <!-- daraus folgt, dass Bearbeiter etc bei Kommentare erst eingefügt werden darf, wenn ein Locator vorhanden ist -->
-    <!-- ist Gewöhnungssache, aber sonst nicht weiter schlimm -->
-
-
-
-    <layout delimiter="; " prefix="[" suffix="]">
-      <choose>
-
-
-        <!-- Quellentyp: GERICHTSENTSCHEIDUNG / SCHIEDSGERICHTSENTSCHEIDUNG -->
-        <if type="legal_case" match="any">
-          <text variable="title" form="short"/>
-          <text variable="original-publisher" prefix=", "/>
-          <choose>
-            <if match="none" variable="original-publisher">
-              <text variable="authority" prefix=", "/>
-            </if>
-          </choose>
-
-          <!-- nur bei Schiedsgerichten: Az. direkt im Inline-Zitat -->
-          <choose>
-            <if match="any" variable="event-place">
-              <text variable="number" prefix=" Case No. "/>
-            </if>
-          </choose>
-
-          <choose>
-            <if match="any" variable="locator">
-              <label prefix=", " variable="locator" form="short"/>
-              <text variable="locator" prefix=" "/>
-            </if>
-            <else>
-              <text value=", para. ##"/>
-            </else>
-          </choose>
-        </if>
-
-
-
-
-
-        <!-- Quellentyp: KOMMENTAR -->
-        <else-if type="entry-encyclopedia" match="any">
-
-
-          <!-- ein Name als Zitierkürzel -->
-
+  <macro name="Kommentar_Kurznamen">
           <choose>
             <if match="any" variable="translator">
               <names variable="translator" font-variant="small-caps">
@@ -220,9 +198,6 @@
             </else>
           </choose>
 
-
-
-
           <!-- ## wip: disambiguation -->
           <!-- damit das funktioniert, müssen der Bearbeiter etc. vom locator abhängig sein... :/ -->
           <choose>
@@ -235,8 +210,152 @@
               </choose>
             </if>
           </choose>
+  </macro>
 
 
+
+
+
+
+
+  <macro name="Literaturverzeichnis_Reihenfolge">
+    <!-- Authorities (A), Awards (B), Cases (C) -->
+    <choose>
+      <if type="musical_score" match="any">                                         <!-- Platzhalter -->
+        <text value="A"/>
+        <names variable="author"/>
+      </if>
+      <else-if match="all" type="paper-conference">                                 <!-- CISG-AC Op. -->
+        <text value="A"/>
+        <text variable="title" form="short"/>
+      </else-if>
+      <else-if match="all" type="entry-encyclopedia" variable="keyword">            <!-- Kommentar mit Sachtitel -->
+        <text value="A"/>
+        <text variable="original-title"/>
+      </else-if>
+      <else-if match="all" type="entry-encyclopedia" variable="original-author">    <!-- Kommentar mit Begründer -->
+        <text value="A"/>
+        <names variable="original-author"/>
+      </else-if>
+      <else-if match="all" type="entry-encyclopedia">                               <!-- Kommentar Sonstige-->
+        <text value="A"/>
+        <names variable="editor"/>
+      </else-if>
+      <else-if match="all" type="book">                                             <!-- Monographie-->
+        <text value="A"/>
+        <names variable="author"/>
+      </else-if>
+      <else-if match="all" type="article-journal">                                  <!-- Zeitschriftenaufsatz-->
+        <text value="A"/>
+        <names variable="author"/>
+      </else-if>
+      <else-if match="all" type="legal_case">                                       <!-- Gerichts- und Schiedsgerichtsentscheidungen -->
+          <choose>
+            <if variable="event-place" jurisdiction="arb.csl" match="any">          <!-- Arbitral Award -->
+              <text value="B"/>
+              <text variable="authority" />
+              <text variable="title" form="short" />
+            </if>
+            <else>                                                                  <!-- Case -->
+              <text value="C"/>
+              <text macro="Jurisdiction"/>
+              <text variable="title" form="short" />
+            </else>
+          </choose>
+      </else-if>
+      <else>                                                                        <!-- Sonstige Quellen -->
+        <text value="A"/>
+        <names variable="author"/>
+      </else>
+    </choose>
+  </macro>
+
+
+
+   <!-- das citation-Element legt die Zitierweise in den Inline-Citations fest -->
+  <citation disambiguate-add-year-suffix="false">
+    <!-- ich weiß nicht warum aber das auf "true" zu setzen sorgt dafür, dass choose>disambiguate verschwindet?? -->
+   <!-- das sollte eigenltihc nicht so sein, weil nach Specs sollte das if-statement dem year-suffix vorgehen!! ("Four methods are available to eliminate such ambiguity, which are always tried in the following order:") -->
+   <!-- wobei es an anderer Stelle bzgl. choose heißt: "This attempt at disambiguation is only made when all other disambiguation methods have failed to uniquely identify the target source." -->
+
+    <!-- die disambiguation kickt, wenn beim Rendern ohne Locator mehrere Einträge gleich aussehen -->
+    <!-- daraus folgt, dass Bearbeiter etc bei Kommentare erst eingefügt werden darf, wenn ein Locator vorhanden ist -->
+    <!-- ist Gewöhnungssache, aber sonst nicht weiter schlimm -->
+
+
+
+    <layout delimiter="; " prefix="[" suffix="]">
+      <choose>
+
+        <!-- Quellentyp: CISG-AC Op. -->
+        <if type="paper-conference" match="any">
+          <text variable="title" form="short"/>
+          <choose>
+            <if match="any" variable="locator">
+              <label variable="locator" form="short" prefix=", " suffix=" "/>
+              <text variable="locator"/>
+            </if>
+            <else>
+              <text value=", para. ##"/>
+            </else>
+          </choose>
+        </if>
+
+
+
+
+        <!-- Quellentyp: GERICHTSENTSCHEIDUNG / SCHIEDSGERICHTSENTSCHEIDUNG -->
+        <else-if type="legal_case" match="any">
+
+          <!-- Fallbezeichnung laut Styleguide (Fallname oder Parteien) aus Feld "Kurztitel" -->
+          <text variable="title-short"/>
+          <choose>
+            <if match="none" variable="title-short">
+              <text value="##Kurztitel"/>
+            </if>
+          </choose>
+
+          <!-- Gerichtsbezeichnung laut Styleguide aus Feld "Sprache" -->
+          <text variable="language" prefix=", "/>
+          <!-- Fallback ... -->
+          <choose>
+            <if match="none" variable="language">
+              <text value="##Gerichtsname(Styleguide->'Sprache')" prefix=", "/>
+            </if>
+          </choose>
+
+          <!-- nur bei Schiedsgerichten: Az. direkt im Inline-Zitat -->
+          <choose>
+            <if match="any" variable="event-place" jurisdiction="arb.csl">
+              <text variable="number" prefix=" Case No. "/>
+            </if>
+          </choose>
+
+          <!-- Locator -->
+          <choose>
+            <if match="any" variable="locator">
+              <label prefix=", " variable="locator" form="short"/>
+              <text variable="locator" prefix=" "/>
+            </if>
+            <else>
+              <text value=", para. ##"/>
+            </else>
+          </choose>
+        </else-if>
+
+
+
+
+
+        <!-- Quellentyp: KOMMENTAR -->
+        <else-if type="entry-encyclopedia" match="any">
+
+
+          <!-- ein Name als Zitierkürzel -->
+          <text macro="Kommentar_Kurznamen"/>
+
+
+          <!-- damit die disambiguation (im Makro!) funktioniert, müssen der Bearbeiter etc. vom locator abhängig sein... :/ -->
           <choose>
             <if match="any" variable="locator">
               <text value="/"/>
@@ -276,7 +395,7 @@
 
         <!-- Quellentyp: MONOGRAPHIE -->
         <else-if type="book" match="any">
-          <text macro="Kurznamen_Autoren"/>
+          <text macro="Autoren_Kurz"/>
 
 
 
@@ -315,37 +434,18 @@
 
 
 
-        <!-- Quellentyp: CISG-AC Op. -->
-        <else-if type="paper-conference" match="any">
-          <text variable="title" form="short"/>
-          <choose>
-            <if match="any" variable="locator">
-              <label variable="locator" form="short" prefix=", " suffix=" "/>
-              <text variable="locator"/>
-            </if>
-            <else>
-              <text value=", para. ##"/>
-            </else>
-          </choose>
-        </else-if>
+
 
 
 
         <!-- Quellentyp: SAMMELWERKBEITRAG -->
         <else-if type="chapter" match="any">
-          <text macro="Kurznamen_Autoren"/>
+          <text macro="Autoren_Kurz"/>
 
-          <!-- ## wip: disambiguation -->
-          <choose>
-            <if disambiguate="true">
-              <text variable="license" prefix=" "/>
-              <choose>
-                <if match="none" variable="license">
-                  <text value=" ##"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
+
+          <!-- Disambiguation vergleich nur ohne Locator -->
+
+
 
           <choose>
             <if match="any" variable="locator">
@@ -361,7 +461,7 @@
 
         <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ -->
         <else-if type="article-journal" match="any">
-          <text macro="Kurznamen_Autoren"/>
+          <text macro="Autoren_Kurz"/>
 
           <!-- ## wip: disambiguation -->
           <choose>
@@ -417,42 +517,51 @@
 
         <!-- Quellentyp: CISG-AC Opinion -->
         <if type="paper-conference" match="any">
-          <choose>
-            <if match="any" variable="compiler">
-              <names variable="compiler"/>
-              <text value=" (rapporteur),"/>
-            </if>
-          </choose>
+
+          <!-- Kurzzitat wiederholen -->
+          <text variable="title" form="short" display="block"/>
+
+          <!-- Rapporteur -->
+          <names variable="compiler" display="block">
+            <name font-style="italic"/>
+            <label prefix=" (" suffix="), "/>
+          </names>
           <choose>
             <if match="none" variable="compiler">
-              <text value="## TODO: Angabe des Rapporteurs fehlt (Zotero &quot;compiler: ...&quot; im Extra-Feld) ##"/>
+              <text value="##Rapporteur(&quot;Compiler: ...&quot; im Extra-Feld)," display="block"/>
             </if>
           </choose>
+
+          <!-- Titel -->
           <text variable="title" display="block" suffix=","/>
           <choose>
             <if match="none" variable="title">
-              <text value="##Titel fehlt##"/>
+              <text value="##Titel"/>
             </if>
           </choose>
+
+          <!-- Ort und Jahr -->
           <group display="block">
             <text variable="event-place" suffix=", "/>
             <choose>
               <if match="none" variable="event-place">
-                <text value="##Ort fehlt##"/>
+                <text value="##Ort, "/>
               </if>
             </choose>
             <date date-parts="year" form="text" variable="issued" suffix="."/>
             <choose>
               <if match="none" variable="issued">
-                <text value="##Datum fehlt## ."/>
+                <text value="##Jahr."/>
               </if>
             </choose>
           </group>
           <choose>
             <if match="none" variable="event-place issued">
-              <text value="## Ort fehlt ## , ## Jahr fehlt ## ."/>
+              <text value="##Ort, ##Jahr." display="block"/>
             </if>
           </choose>
+
+          <!-- Abschlusszeilen -->
           <text macro="End_Line_1" display="block"/>
           <text macro="End_Line_2" display="block"/>
           <text macro="End_Line_3" display="block"/>
@@ -465,15 +574,21 @@
             <!-- GERICHTSENTSCHEIDUNG -->
             <if match="none" variable="event-place">
 
-              <!-- Inline-Zitat wiederholen -->
-              <text variable="title" form="short" display="left-margin"/>
+              <!-- ##ZWISCHENÜBERSCHRIFT -->
+              <text macro="Jurisdiction" display="block" font-variant="small-caps"/>
 
+              <!-- Inline-Zitat tlw. wiederholen -->
+              <text variable="title" form="short" display="block"/>
+
+              <!-- Gericht (vollständiger Name) -->
               <text variable="authority" display="block"/>
               <choose>
                 <if match="none" variable="authority">
-                  <text value="## TODO: Gericht fehlt ##"/>
+                  <text value="##Gericht" display="block" />
                 </if>
               </choose>
+
+              <!-- Parteien aus Zotero-Feld "Original Title" mit Fallback -->
               <text variable="original-title" font-style="italic" display="block"/>
               <choose>
                 <if match="none" variable="original-title">
@@ -482,23 +597,29 @@
               </choose>
               <choose>
                 <if match="none" variable="original-title title">
-                  <text value="## TODO: Parteien/Fallbezeichnung fehlt ##" display="block"/>
+                  <text value="##Parteien" font-style="italic" display="block"/>
                 </if>
               </choose>
+
+              <!-- Entscheidungsdatum -->
               <date form="text" variable="issued" display="block">
                 <date-part name="day" form="numeric-leading-zeros"/>
               </date>
               <choose>
                 <if match="none" variable="issued">
-                  <text value="## TODO: Datum fehlt ##" display="block"/>
+                  <text value="##Datum" display="block"/>
                 </if>
               </choose>
+
+              <!-- Az. -->
               <text variable="number" display="block" prefix="Case No. "/>
               <choose>
                 <if match="none" variable="number">
-                  <text value="## TODO: Az. fehlt ##" display="block"/>
+                  <text value="##Aktenzeichen" display="block"/>
                 </if>
               </choose>
+
+              <!-- ##todo: Fundstelle -->
               <choose>
                 <if match="any" variable="page">
                   <text value="" display="block" prefix="available at:"/>
@@ -517,6 +638,8 @@
                   </group>
                 </else>
               </choose>
+
+              <!-- Abschlusszeilen -->
               <text macro="End_Line_1" display="block"/>
               <text macro="End_Line_2" display="block"/>
               <text macro="End_Line_3" display="block"/>
@@ -524,6 +647,13 @@
 
             <!-- SCHIEDSGERICHTSENTSCHEIDUNG -->
             <else>
+
+              <!-- ##ZWISCHENÜBERSCHRIFT -->
+              <text variable="authority" display="block" font-variant="small-caps"/>
+
+              <!-- Inline-Zitat tlw. wiederholen -->
+              <text variable="title" form="short" display="block"/>
+
               <text variable="authority" display="block"/>
               <choose>
                 <if match="none" variable="authority">
@@ -542,12 +672,15 @@
                   <text value="## todo: Art der Entscheidung eintragen (Zotero: &quot;genre: ##&quot; in Extra) ##" display="block"/>
                 </if>
               </choose>
+
+              <!-- Entscheidungsdatum -->
               <date form="text" variable="issued" display="block"/>
               <choose>
                 <if match="none" variable="issued">
-                  <text value="## TODO: Datum fehlt ##"/>
+                  <text value="##Datum" display="block"/>
                 </if>
               </choose>
+
               <group display="block">
                 <text variable="original-publisher"/>
                 <text value=" Case No. "/>
@@ -591,65 +724,85 @@
 
         <!-- Quellentyp: KOMMENTAR -->
         <else-if type="entry-encyclopedia" match="any">
-          <choose>
-            <if match="any" variable="translator">
-              <names variable="translator">
-                <name/>
-                <label prefix=" (" suffix="), "/>
-              </names>
-              <text macro="Langnamen_Herausgeber"/>
-            </if>
-            <else-if match="any" variable="editor">
-              <text macro="Langnamen_Herausgeber"/>
-            </else-if>
-            <else>
-              <text value="## TODO: Hrsg fehlen ##"/>
-            </else>
-          </choose>
 
-          <!-- ## wip: disambiguation -->
-          <choose>
-            <if disambiguate="true">
-              <text variable="license" prefix=" "/>
-              <choose>
-                <if match="none" variable="license">
-                  <text value=" ##"/>
-                </if>
-              </choose>
-            </if>
-          </choose>
+          <!-- Kurzzitat wiederholen -->
+          <group display="block">
+            <text macro="Kommentar_Kurznamen"/>
+            <text value="/"/>
+            <text value="Author" font-style="italic"/>
+          </group>
 
-          <text variable="original-title" display="block" suffix=","/>
-          <choose>
-            <if match="none" variable="original-title">
-              <text value="## TODO: Titel des Kommentars fehlt (Zotero: 'Original Title: ...' im Extra-Feld) ##" display="block"/>
-            </if>
-          </choose>
+          <!-- Langnamen -->
+          <group display="block">
+            <choose>
+              <if match="any" variable="translator">
+                <names variable="translator" font-style="italic">
+                  <name/>
+                  <label prefix=" (" suffix="), "/>
+                </names>
+                <text macro="Hrsg_lang"/>
+                <text macro="GHrsg_Lang" prefix=" "/>
+              </if>
+              <else-if match="any" variable="editor">
+                <text macro="Hrsg_Lang"/>
+                <text macro="GHrsg_Lang" prefix=" "/>
+              </else-if>
+              <else>
+                <text value="## TODO: Hrsg fehlen ##"/>
+              </else>
+            </choose>
+          </group>
+
+          <!-- Kommentartitel, ##todo: nutzt noch primär original-titel statt container-title -->
+          <group display="block">
+            <choose>
+              <if match="any" variable="original-title">
+                <text variable="original-title" suffix=","/>
+              </if>
+              <else-if match="any" variable="container-title">
+                <text variable="container-title" suffix=","/>
+              </else-if>
+              <else>
+                <text value="##Kommentartitel,"/>
+              </else>
+            </choose>
+          </group>
 
           <text variable="volume" display="block" prefix="Volume " suffix=","/>
 
+          <!-- Online-Kommentare -->
+          <!-- werden über die Variable submitted erkannt, genommen wird aber das Datum aus issued, weil nur das autom. formatiert wird... -->
           <group display="block">
-
-            <number variable="edition" suffix=" edition, "  form="ordinal"/>
-
-            <date form="text" variable="submitted" display="block" prefix="Digital legal commentary, issued " suffix=","/>
-
-            <text variable="publisher-place" suffix=", "/>
             <choose>
-              <if match="none" variable="publisher-place">
-                <text value="## TODO: Ort fehlt ## , "/>
-              </if>
-            </choose>
-            <date date-parts="year" form="text" variable="issued" suffix="."/>
-            <choose>
-              <if match="none" variable="issued">
-                <text value="## TODO: Jahr fehlt ## ."/>
+              <if match="all" variable="submitted">
+                <date form="text" variable="issued" prefix="Digital legal commentary, issued " suffix=",    "/>
               </if>
             </choose>
           </group>
+
+          <!-- Aufl., Ort, Jahr -->
+          <group display="block">
+            <!-- Aufl. -->
+            <number variable="edition" suffix=" edition, "  form="ordinal"/>
+            <!-- Ort mit Fallback -->
+            <text variable="publisher-place" display="block" suffix=", "/>
+            <choose>
+              <if match="none" variable="publisher-place">
+                <text value="##Ort, "/>
+              </if>
+            </choose>
+            <!-- Jahr mit Fallback-->
+            <date date-parts="year" form="text" variable="issued" suffix="."/>
+            <choose>
+              <if match="none" variable="issued">
+                <text value="##Erscheinungsjahr."/>
+              </if>
+            </choose>
+          </group>
+          <!-- Fallback für die Gruppe insg. -->
           <choose>
-            <if match="none" variable="publisher-place issued">
-              <text value="## Ort fehlt ## , ## Jahr fehlt ## ." display="block"/>
+            <if match="none" variable="publisher-place issued edition">
+              <text value="##Auflage, ##Ort, ##Erscheinungsjahr." display="block"/>
             </if>
           </choose>
 
@@ -662,7 +815,11 @@
         <!-- Quellentyp: MONOGRAPHIE -->
         <else-if type="book" match="any">
 
-          <text macro="Langnamen_Autoren" display="block"/>
+
+          <!-- Kurzzitat wiederholen; ##todo: disambiguation -->
+          <text macro="Autoren_Kurz" display="block"/>
+
+          <text macro="Autoren_Lang" display="block"/>
           <choose>
             <if match="none" variable="author">
               <text value="## TODO: Autoren fehlen ##" display="block"/>
@@ -703,6 +860,10 @@
 
         <!-- Quellentyp: SAMMELBANDBEITRAG  -->
         <else-if type="chapter" match="any">
+
+          <!-- Kurzzitat wiederholen  -->
+          <text macro="Autoren_Kurz" display="block"/>
+
           <names variable="author" font-style="italic" display="block" suffix=",">
             <name/>
           </names>
@@ -762,62 +923,79 @@
 
         <!-- Quellentyp: ZEITSCHRIFTENAUFSATZ -->
         <else-if type="article-journal" match="any">
-          <text macro="Langnamen_Autoren" display="block"/>
+
+          <!-- Inline-Zitierweise wiederholen -->
+          <text macro="Autoren_Kurz" display="block"/>
+
+          <!-- Autoren -->
+          <text macro="Autoren_Lang" display="block"/>
           <choose>
             <if match="none" variable="author">
-              <text value="## TODO: Autoren fehlen ##"/>
+              <text value="##Autor(en)," display="block"/>
             </if>
           </choose>
+
+          <!-- Aufsatztitel -->
           <text variable="title" display="block" suffix=","/>
           <choose>
             <if match="none" variable="title">
               <text value="## Aufsatztitel fehlt ## ," display="block"/>
             </if>
           </choose>
-          <group>
-            <text value="in: " display="block"/>
+
+          <!-- Zeitschriftenname und Abkürzung -->
+          <group display="block">
+            <text value="in: "/>
             <text variable="container-title"/>
-            <choose>
-              <if match="any" variable="container-title-short">
-                <text variable="container-title-short" prefix=" (" suffix=")"/>
-              </if>
-            </choose>
+            <text variable="container-title-short" prefix=" (" suffix=")"/>
             <text value=", "/>
           </group>
+          <!-- Warnung, wenn Zeitschriftenname fehlt -->
           <choose>
             <if match="none" variable="container-title">
-              <text value="## Zeitschriftentitel fehlt ##"/>
+              <text value="##Zeitschriftentitel," prefix="in: " display="block"/>
             </if>
           </choose>
+
+          <!-- Band (Vol.) und Ausgabe (Issue) -->
           <group display="block">
             <text variable="volume" prefix="Volume " suffix=", "/>
             <text variable="issue" prefix="Issue " suffix=", "/>
           </group>
-          <text variable="page" display="block" prefix="pp. " suffix=","/>
+          <!-- ##todo: keine Warnung, weil das legitimerweise beides fehlen kann; allerdings kommen dann die Seiten über dem Jahr, was kontraintuitiv wirkt - was tun? -->
+
+          <!-- Seitenangabe -->
+          <text variable="page" prefix="pp. " suffix="," display="block"/>
           <choose>
             <if match="none" variable="page">
-              <text value="## TODO: Seiten fehlen ##" display="block"/>
+              <text value="##Seitenangabe," display="block"/>
             </if>
           </choose>
+
+          <!-- Erscheinungsort und -jahr -->
           <group display="block">
-            <text variable="publisher-place" display="block" suffix=", "/>
+            <text variable="publisher-place" suffix=", "/>
             <choose>
               <if match="none" variable="publisher-place">
-                <text value="## TODO: Ort fehlt ## , "/>
+                <text value="##Ort, "/>
               </if>
             </choose>
             <date date-parts="year" form="text" variable="issued" suffix="."/>
             <choose>
               <if match="none" variable="issued">
-                <text value="## TODO: Jahr fehlt ## ."/>
+                <text value="##Erscheinungsjahr."/>
               </if>
             </choose>
           </group>
+          <!-- Fallback für die Gruppe -->
           <choose>
             <if match="none" variable="publisher-place issued">
-              <text value="## Ort fehlt ## , ## Erscheinungsjahr fehlt ## ."/>
+              <text value="##Ort, ##Erscheinungsjahr." display="block"/>
             </if>
           </choose>
+
+
+          <!-- Abschlussinfos -->
           <text macro="End_Line_1" display="block"/>
           <text macro="End_Line_2" display="block"/>
           <text macro="End_Line_3" display="block"/>
@@ -831,6 +1009,12 @@
           <text value="## Literaturtyp nicht implementiert, muss manuell erstellt werden ##"/>
         </else>
       </choose>
+
+
+      <!-- Sortier-Makro offenlegen -->
+      <!--text macro="Literaturverzeichnis_Reihenfolge" /-->
+
+
     </layout>
   </bibliography>
 </style>
