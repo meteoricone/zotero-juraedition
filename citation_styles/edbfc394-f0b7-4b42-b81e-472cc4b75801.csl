@@ -25,7 +25,7 @@
       <name>Eric Mann</name>
     </author>
     <!-- updated ist zwingend; timestamp in speziellem Format -->
-    <updated>2026-10-11T12:00:00+00:00</updated>
+    <updated>2026-10-13T12:00:00+00:00</updated>
   </info>
 
 
@@ -296,9 +296,6 @@
               <label variable="locator" form="short" prefix=", " suffix=" "/>
               <text variable="locator"/>
             </if>
-            <else>
-              <text value=", para. ##"/>
-            </else>
           </choose>
         </if>
 
