@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-08 20:04:12"
+	"lastUpdated": "2026-10-13 14:46:58"
 }
 
 /*
@@ -131,7 +131,7 @@ function saveMultipleAcOps(doc, url) {
 			};
 
 			// PDF
-			let activeNode = doc.querySelectorAll(".row.hover")[i];
+			let activeNode = doc.querySelectorAll(".row.hover")[key];
 			let pdfUrl = attr(activeNode, "a", "href");
 			item.attachments.push({
 				title: "CISG-online PDF",
