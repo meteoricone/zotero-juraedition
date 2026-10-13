@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-13 14:46:58"
+	"lastUpdated": "2026-10-13 15:15:59"
 }
 
 /*
@@ -471,14 +471,14 @@ function saveSingleAcOp(doc, url) {
 	} else {
 		number = number[0];
 	};
-	item.title = "CISG-AC Opinion No " + number;
+	item.title = "CISG-AC Opinion No. " + number + ": ##Titel";
 
 	// URL
 	item.url = url;
 
 	// PDF
 	item.attachments.push({
-		title: "CISG-AC Opinion No " + number + " PDF",
+		title: "CISG-AC Opinion No. " + number + " PDF",
 		mimeType: "application/pdf",
 		url: url,
 	});
