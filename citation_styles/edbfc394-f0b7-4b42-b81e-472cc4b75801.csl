@@ -25,7 +25,7 @@
       <name>Eric Mann</name>
     </author>
     <!-- updated ist zwingend; timestamp in speziellem Format -->
-    <updated>2026-10-13T12:00:00+00:00</updated>
+    <updated>2026-10-18T12:00:00+00:00</updated>
   </info>
 
 
@@ -163,8 +163,20 @@
                 <else-if match="any" jurisdiction="at">
                   <text value="Austria"/>
                 </else-if>
+                <else-if match="any" jurisdiction="be">
+                  <text value="Belgium"/>
+                </else-if>
                 <else-if match="any" jurisdiction="de">
                   <text value="Germany"/>
+                </else-if>
+                <else-if match="any" jurisdiction="gb">
+                  <text value="United Kingdom"/>
+                </else-if>
+                <else-if match="any" jurisdiction="in">
+                  <text value="India"/>
+                </else-if>
+                <else-if match="any" jurisdiction="nl">
+                  <text value="Netherlands"/>
                 </else-if>
                 <else-if match="any" jurisdiction="us">
                   <text value="United States"/>
