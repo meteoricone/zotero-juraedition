@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-10-23 10:18:23"
+	"lastUpdated": "2026-10-23 12:22:55"
 }
 
 /*
@@ -64,6 +64,15 @@ async function doWeb(doc, url) {
 				url: href
 			});
 		}
+
+
+		// HTML Screenshot
+		item.attachments.push({
+			title: "Snapshot",
+			document: doc,
+			snapshot: true,
+			mimeType: "text/html"
+		});
 
 
 
