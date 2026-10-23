@@ -8,7 +8,7 @@
 	"priority": 500,
 	"inRepository": true,
 	"translatorType": 8,
-	"lastUpdated": "2026-09-15 07:34:28"
+	"lastUpdated": "2026-10-23 10:16:24"
 }
 
 /*
@@ -54,6 +54,7 @@ async function doSearch(item) {
 
 	var dejureItem = new Zotero.Item(item.itemType);
 	dejureItem.title = "##";
+	let searchURL = "";
 
 
 	if (item.reporter) {
@@ -65,16 +66,31 @@ async function doSearch(item) {
 		let reporterURL = "https://dejure.org/dienste/vernetzung/rechtsprechung?Text=" + encodeURIComponent(item.reporter) + "&Suche=" + encodeURIComponent(item.reporter);
 		// dejureItem.notes.push({note: reporterURL});
 		
+
+
+		searchURL = reporterURL;
+	}
+
+	if (item.docketNumber) {
+		dejureItem.docketNumber = item.docketNumber;
+
+		// ##todo
+		let azURL = "https://dejure.org/dienste/vernetzung/rechtsprechung?Text=" + encodeURIComponent(item.docketNumber) + "&Suche=" + encodeURIComponent(item.docketNumber);
+
 		// Aktenzeichen
 		// let azURL = az.replaceAll(" ", "%20").replaceAll("/", "%2F");
 		// let searchURL = "https://dejure.org/dienste/vernetzung/rechtsprechung?Text=" + azURL + "&Suche=" + azURL;
 		// https://dejure.org/dienste/vernetzung/rechtsprechung?Text=VII%20ZR%20302%2F69&Suche=VII%20ZR%20302%2F69
 		// item.notes.push({note: searchURL});
 
-		
+		searchURL = azURL;
+	}
 
 
-		let searchURL = reporterURL;
+	if (searchURL) {
+
+		dejureItem.url = searchURL;
+
 
 		let dejure = await requestDocument(searchURL);
 		let urteilszeilen = dejure.querySelectorAll(".urteilszeile");
@@ -110,12 +126,36 @@ async function doSearch(item) {
 				}
 			}
 
+			// Papierfundstellen
+			// ##todo
+			let xpath2 = "//h4[normalize-space()='Papierfundstellen']/following-sibling::*[1][self::ul]/li";
+			let fundstellen = ZU.xpath(dejure, xpath2);
+			if (fundstellen.length) {
+				let fundstellenNote = "<h3>Fundstellen</h3>";
+				for (let f of fundstellen) {
+					fundstellenNote = fundstellenNote + f.textContent + "<br>";
+				}
+				dejureItem.notes.push({note: fundstellenNote});
+			} else {
+				dejureItem.notes.push({note: "fail..."});
+			}
 
+
+			/*
+		let fundstellenNote = "<h3>Fundstellen</h3>";
+		for (let i = 0; i < fundstellenZeilen.length; i++) {
+			fundstellenNote = fundstellenNote + fundstellenZeilen[i].replace(/^\u00A0/, "").replace(/^, ?/, "") + "<br>";
+		};
+		item.notes.push({note: fundstellenNote});
+			*/
+
+			// Kurztitel
 			dejureItem.shortTitle = text(dejure, 'p[style*="font-weight:bold" i]');
 			
+			// Langtitel
 			dejureItem.title = dejureItem.authority + ", " + dejureItem.date + " – " + dejureItem.docketNumber;
 
-			dejureItem.notes.push({note: "Metadaten von:<br>" + searchURL + "<br>(" + new Date().toLocaleDateString("de-DE") + ")"});
+			// dejureItem.notes.push({note: "Metadaten von:<br>" + searchURL + "<br>(" + new Date().toLocaleDateString("de-DE") + ")"});
 		}
 		
 	}

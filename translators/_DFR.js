@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-15 07:27:56"
+	"lastUpdated": "2026-10-23 10:00:02"
 }
 
 /*
@@ -69,6 +69,8 @@ async function doWeb(doc, url) {
 	search.setTranslator("65cf08cc-3a48-4ed9-8e92-ef9f510d4367");	// _dejure.org Metadata
 	search.setSearch({ itemType: "case", reporter: reporter});							// üblich ist wohl Skelett-Objekt statt Zotero.Item-Objekt
 	search.setHandler("itemDone", (obj, dejureItem) => {
+
+		dejureItem.notes.push({note: "Metadaten von:<br>" + dejureItem.url + "<br>(" + new Date().toLocaleDateString("de-DE") + ")"});
 		dejureItem.url = url;          // eigene Felder überschreiben
 		
 

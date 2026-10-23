@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-14 22:27:57"
+	"lastUpdated": "2026-10-16 10:12:01"
 }
 
 /*
@@ -21,20 +21,40 @@
 */
 
 function detectWeb(doc, url) {
+	if (journalDOI(doc, url)) return "journalArticle";
+	if (bookDOI(doc, url)) return "book";
+	return false;
+}
+
+function journalDOI(doc, url) {
 	let xpath = "//button[normalize-space(.)='DOI-Kapitellink kopieren']/@data-clipboard-copy-content-param";
 	let doi = ZU.xpathText(doc, xpath);
-	if (!doi) return false;
-	return "journalArticle";
+	return doi || false;
+};
+
+function bookDOI(doc, url) {
+	let xpath1 = "//dt[normalize-space(.)='ISBN-Online']";
+	let book = ZU.xpathText(doc, xpath1);
+	let doi = "";
+	if (book) {
+		let xpath2 = "//button[contains(., 'DOI')]/@data-clipboard-copy-content-param";
+		doi = ZU.xpathText(doc, xpath2);
+	}
+	return doi || false;
 }
  
 async function doWeb(doc, url) {
 
-	let xpath = "//button[normalize-space(.)='DOI-Kapitellink kopieren']/@data-clipboard-copy-content-param";
-	let doi = ZU.xpathText(doc, xpath);
-	if (!doi) return;
+	let doi = "";
+	doi = journalDOI(doc, url);
+	if (!doi) doi = bookDOI(doc, url);
+	if (!doi) return false;
+
+	let type = detectWeb(doc, url);
+	if (!type) return false;
  
 	let translation = Zotero.loadTranslator("search");
-	translation.setSearch({ itemType: "journalArticle", DOI: doi });
+	translation.setSearch({ itemType: type, DOI: doi });
 	translation.setTranslator("b28d0d42-8549-4c6d-83fc-8382874a5cb9");	// DOI Content Negotiation
  
 

@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2026-09-15 07:47:55"
+	"lastUpdated": "2026-10-23 10:18:23"
 }
 
 /*
@@ -36,8 +36,22 @@ async function doWeb(doc, url) {
 
 
 
-		// Titel -- ##todo: die Metadaten sauber in den Feldern aufnehmen
-		item.title = text(doc, "h2");
+		// Titel
+		let title = text(doc, "h2");
+		item.title = title;
+
+		// Metadaten aus dem Titel
+		let docketNumber = "";
+		let regex = /BGH (\d StR \d+\/\d+) - (\S+) vom (\d+\. \S+ \d+)/;
+		let match = title.match(regex);
+		if (match) {
+			item.court = "BGH";
+			item.jurisdiction = "de";
+			docketNumber = match[1];
+			item.docketNumber = docketNumber;
+			item.extra = "Genre: " + match[2];
+			item.date = match[3];
+		}
 
 
 
@@ -51,6 +65,38 @@ async function doWeb(doc, url) {
 			});
 		}
 
+
+
+		if (docketNumber) {
+			// ## wip
+			let search = Zotero.loadTranslator("search");
+			search.setTranslator("65cf08cc-3a48-4ed9-8e92-ef9f510d4367");	// _dejure.org Metadata
+			search.setSearch({ itemType: "case", docketNumber: docketNumber});							// üblich ist wohl Skelett-Objekt statt Zotero.Item-Objekt
+			search.setHandler("itemDone", (obj, dejureItem) => {
+
+				// Push all attachments, not tested yet
+				for (let att of (dejureItem.attachments || [])) {
+				 	item.attachments.push(Object.assign({}, att));
+				}
+
+				// Push all notes
+				for (let note of (dejureItem.notes || [])) {
+					item.notes.push(typeof note === "string" ? { note } : Object.assign({}, note));
+				}
+
+				if (dejureItem.shortTitle && !item.shortTitle) {
+					item.shortTitle = dejureItem.shortTitle;
+				}
+
+				if (dejureItem.history) {
+					item.history = dejureItem.history;
+				}
+
+				item.notes.push({note: "Metadaten ergänzt mit:<br>" + dejureItem.url + "<br>(" + new Date().toLocaleDateString("de-DE") + ")"});
+		
+			});
+			await search.translate();
+		}
 
 
 
