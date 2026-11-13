@@ -25,7 +25,7 @@
       <name>Eric Mann</name>
     </author>
     <!-- updated ist zwingend; timestamp in speziellem Format -->
-    <updated>2026-10-18T12:00:00+00:00</updated>
+    <updated>2026-11-06T12:00:00+00:00</updated>
   </info>
 
 
@@ -163,8 +163,14 @@
                 <else-if match="any" jurisdiction="at">
                   <text value="Austria"/>
                 </else-if>
+                <else-if match="any" jurisdiction="au">
+                  <text value="Australia"/>
+                </else-if>
                 <else-if match="any" jurisdiction="be">
                   <text value="Belgium"/>
+                </else-if>
+                <else-if match="any" jurisdiction="ch">
+                  <text value="Switzerland"/>
                 </else-if>
                 <else-if match="any" jurisdiction="de">
                   <text value="Germany"/>
@@ -175,11 +181,17 @@
                 <else-if match="any" jurisdiction="in">
                   <text value="India"/>
                 </else-if>
+                <else-if match="any" jurisdiction="it">
+                  <text value="Italy"/>
+                </else-if>
                 <else-if match="any" jurisdiction="nl">
                   <text value="Netherlands"/>
                 </else-if>
                 <else-if match="any" jurisdiction="us">
                   <text value="United States"/>
+                </else-if>
+                <else-if match="any" jurisdiction="vn">
+                  <text value="Vietnam"/>
                 </else-if>
                 <else>
                   <text variable="jurisdiction" prefix="##Zitierstil ergänzen: "/>
@@ -998,6 +1010,9 @@
 
       <!-- Sortier-Makro offenlegen -->
       <!--text macro="Literaturverzeichnis_Reihenfolge" /-->
+
+      <!-- Quellenanzahl zählen -->
+      <text variable="citation-number" prefix=" [" suffix="]"/>
 
 
     </layout>
