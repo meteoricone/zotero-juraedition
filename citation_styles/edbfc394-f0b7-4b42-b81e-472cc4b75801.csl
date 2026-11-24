@@ -25,7 +25,7 @@
       <name>Eric Mann</name>
     </author>
     <!-- updated ist zwingend; timestamp in speziellem Format -->
-    <updated>2026-11-23T12:00:00+00:00</updated>
+    <updated>2026-11-24T12:00:00+00:00</updated>
   </info>
 
 
@@ -204,16 +204,21 @@
 
   <macro name="Kommentar_Kurznamen">
           <choose>
-            <if match="any" variable="translator">
+
+            <if match="any" variable="keyword">
+              <text variable="keyword" font-variant="small-caps"/>
+            </if>
+
+            <else-if match="any" variable="translator">
               <names variable="translator" font-variant="small-caps">
                 <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="2" et-al-use-first="1"/>
                 <et-al term="and others"/>
               </names>
-            </if>
+            </else-if>
 
             <else-if match="any" variable="editor collection-editor">
               <names variable="editor" font-variant="small-caps">
-                <name form="short" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="2" et-al-use-first="1"/>
+                <name form="short" delimiter="/" delimiter-precedes-et-al="never" delimiter-precedes-last="never" et-al-min="99" et-al-use-first="99"/>
                 <et-al term="and others"/>
                 <substitute>
                   <names variable="collection-editor"/>
